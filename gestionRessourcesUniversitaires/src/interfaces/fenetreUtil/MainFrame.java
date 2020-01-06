@@ -92,6 +92,7 @@ public class MainFrame extends Fenetre{
 	public void initRight() {
 		right.setBackground(Color.BLUE);
 		right.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		//Proportions non gardées lorsqu'on redimensionne la fenêtre. A voir !
 		right.setDividerLocation((int)getCurrentScreenSize().getHeight()*3/4);
 		right.setDividerSize(4);
 		right.setTopComponent(focus);

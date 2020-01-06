@@ -10,12 +10,12 @@ import utilisateurs.Groupe;
 public class BaseDeDonnees implements Serializable {
 	
 	private static final long serialVersionUID = -6347298237211490750L;
-	static String url = "jdbc:mysql://localhost:3306/myBDD";
+	static String url = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires";
 	static String username = "root";
 	static String mdp = "";
 	static Connection connexion = null;
 	
-	public void creation_bd() throws BaseDeDonneesException {
+	public void creationBDD() throws BaseDeDonneesException {
 		try {
 
 			Class.forName("com.mysql.jdbc.Driver");
@@ -48,7 +48,7 @@ public class BaseDeDonnees implements Serializable {
 				int res = s.executeUpdate(r + ";");
 			}
 
-			//addGroupBD(new Groupe("Tous les utilisateurs"));
+			//ajoutGroupeBDD(new Groupe("Tous les utilisateurs"));
 
 			connexion.close();
 

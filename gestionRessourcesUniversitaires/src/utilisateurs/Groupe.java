@@ -16,6 +16,10 @@ public class Groupe implements Serializable{
 		this.groupe = g;
 	}
 	
+	public Groupe(String n) {
+		this.nom=n;
+	}
+	
 	@Override
 	public String toString() {
 		return nom;

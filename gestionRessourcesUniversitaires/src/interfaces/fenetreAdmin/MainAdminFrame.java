@@ -29,6 +29,10 @@ import interfaces.utilitaire.Bouton;
 public class MainAdminFrame extends Fenetre{
 
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4343060755355986164L;
 	private JOptionPane effaceDemande = new JOptionPane();
 	private JPanel left = new JPanel();
 	private JPanel middle = new JPanel();

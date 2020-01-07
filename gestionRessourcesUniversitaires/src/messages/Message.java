@@ -14,13 +14,13 @@ public class Message implements Serializable {
 	private int idDiscussion;
 	private TypeMessage type;
 	
-	public Message(Utilisateur auteur, Date date, String message, int idMsg, int idFil, TypeMessage t) {
+	public Message(Utilisateur auteur, Date date, String message, int idMsg, int idFil, TypeMessage type) {
 		this.auteur = auteur;
 		this.date = date;
 		this.message = message;
 		this.idDiscussion= idFil;
 		this.idMessage = idMsg;
-		this.type = t;
+		this.type = type;
 	}
 	
 	public Message(Utilisateur auteur, String message, Date date, int id) {

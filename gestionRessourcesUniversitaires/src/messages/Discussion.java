@@ -16,24 +16,29 @@ public class Discussion implements Serializable{
 	private int idDiscussion;
 	private List<Message> messages = new ArrayList<>();
 	
-	public Discussion (String t, Utilisateur c, Groupe g, int i) {
-		this.titre = t;
-		this.createur = c;
-		this.groupe = g;
-		this.idDiscussion = i;
+	public Discussion (String titre, Utilisateur utilisateur, Groupe groupe, int id) {
+		this.titre = titre;
+		this.createur = utilisateur;
+		this.groupe = groupe;
+		this.idDiscussion = id;
 	}
+	
 	public Utilisateur getCreateur() {
 		return createur;
 	}
+	
 	public String getTitre() {
 		return titre;
 	}
+	
 	public int getIdDiscussion() {
 		return idDiscussion;
 	}
+	
 	public Groupe getGroupe() {
 		return groupe;
 	}
+	
 	public List<Message> getMessages() {
 		return messages;
 	}

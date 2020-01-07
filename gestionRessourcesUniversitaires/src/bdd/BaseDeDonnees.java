@@ -7,8 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 
+import messages.Discussion;
 import messages.Message;
 import utilisateurs.Administratif;
 import utilisateurs.Enseignant;
@@ -405,6 +408,24 @@ public class BaseDeDonnees implements Serializable {
 		return listeReturn;
 	}
 	
+	public Groupe getGroupeById(int id) {
+		String requete = "SELECT * FROM GroupeUser WHERE idGroupe = " + id;
+		ResultSet groupe = requeteExecuteQuerie(requete);
+		
+		try {
+			if(groupe.next()) {
+				return new Groupe(groupe.getString("nomGroupe"), 
+						groupe.getInt("idGroupe"), 
+						getUsersOfGroup(new Groupe(groupe.getString("nomGroupe"),
+													groupe.getInt("idGroupe")))
+						);
+			}
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	/********************************
 	 * 								*
 	 * 			Message		 		*
@@ -448,7 +469,111 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	
+	//Attention, pour cette fonction le type du message est initialisé à null
+	public Message getMessageById(int id) {
+		String requete = "SELECT * FROM Message WHERE idMessage = " + id;
+		ResultSet message = requeteExecuteQuerie(requete);
+		
+		try {
+			if(message.next()) {
+				int idMessage = message.getInt("idMessage");
+				String corpsMessage = message.getString("corpsMessage");
+				Date dateMessage = new Date(message.getLong("dateMessage"));
+				String loginUser = message.getString("loginUser");
+				Utilisateur user = usernameVersUtilisateur(loginUser);
+				return new Message(user, dateMessage, corpsMessage, idMessage, getDiscussionOfMessage(idMessage).getIdDiscussion(), null);
+			}
+		} catch (SQLException | BaseDeDonneesException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
+	//A donner : l'id du message pour lequel on veut la discussion qui lui est associée 
+	public Discussion getDiscussionOfMessage(int id) {
+		String requete = "SELECT * FROM Fil WHERE idFil = " + id; //idFil, car si c'est un message qui a créé un Fil, alors idFil = idMessage
+		ResultSet discussion = requeteExecuteQuerie(requete);
+		Discussion returnDiscussion = null;
+		
+		try {
+			if(discussion.next()) {
+				int idFil = discussion.getInt("idFil");
+				returnDiscussion = new Discussion(discussion.getString("titre"), 
+						usernameVersUtilisateur(getMessageById(idFil).getAuteur().getUsername()), //Je récupère l'auteur du message, puis je récupère l'username de cet auteur que j'envoie dans "getCreateurMessage" pour avoir l'auteur 
+						getGroupeOfFil(idFil), 
+						idFil);
+			}
+			else {//Ce message n'a pas créé de fil
+				requete = "SELECT * FROM Contenir WHERE idMessage = " + id;
+				discussion = requeteExecuteQuerie(requete);
+				if(discussion.next()) {//S'il le message est contenu dans un fil de discussion
+					int idFil = discussion.getInt("idFil");
+					returnDiscussion = getFilById(idFil);
+				}		
+			}
+		} catch (SQLException | BaseDeDonneesException e) {
+			e.printStackTrace();
+		}
+		return returnDiscussion;
+	}
+	
+	/********************************
+	 * 								*
+	 * 			  Fil		 		*
+	 * 								*
+	 ********************************/
+	
+	public int creerFil(Message message, String titre, Groupe groupe) {
+		String requete = "INSERT INTO Fil VALUES(";
+		requete += message.getIdMessage() + ", ";
+		requete += "'" + titre +"'";
+		requete += ")";
+		TreeSet<Integer> returnInt = new TreeSet<>(); //TreeSet pour trier les deux nombres et renvoyer le plus petit. En cas d'erreurs, -1 sera renvoyé
+		returnInt.add(requeteExecuteUpdate(requete));
+		returnInt.add(addFilToGroup(groupe.getIdGroupe(), message.getIdMessage()));
+		return returnInt.first();
+	}
+	
+	public Discussion getFilById(int id) {
+		String requete = "SELECT * FROM Fil WHERE idFil = " + id;
+		ResultSet fil = requeteExecuteQuerie(requete);
+		
+		try {
+			if(fil.next()) {
+				return new Discussion(fil.getString("titre"), 
+						getMessageById(id).getAuteur(), //On récupère le message qui a créé le fil, puis on get son auteur 
+						getGroupeOfFil(id), 
+						id);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public Groupe getGroupeOfFil(int id) {
+		String requete = "SELECT * FROM Correspondre WHERE idFil = " + id;
+		ResultSet groupe = requeteExecuteQuerie(requete);
+		
+		try {
+			if(groupe.next()) {
+				int idGroupe = groupe.getInt("idGroupe");
+				return getGroupeById(idGroupe);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public int addFilToGroup(int idGroupe, int idFil) {
+		String requete = "INSERT INTO Correspondre VALUES(";
+		requete += idGroupe + ", ";
+		requete += idFil;
+		requete += ")";
+		return requeteExecuteUpdate(requete);
+	}
 	
 	/********************************
 	 * 								*
@@ -488,6 +613,7 @@ public class BaseDeDonnees implements Serializable {
 		}
 		return null;
 	}
+	
 	
 	
 	/*TODO

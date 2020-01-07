@@ -53,7 +53,7 @@ public class BaseDeDonnees implements Serializable {
 			requeteSQL += "CREATE TABLE Message(" +
 					 "idMessage INT AUTO_INCREMENT," +
 					 "corpsMessage TEXT NOT NULL," +
-					 "dateMessage INT NOT NULL," +
+					 "dateMessage BIGINT NOT NULL," +
 					 "loginUser VARCHAR(100) NOT NULL," +
 					 "PRIMARY KEY(idMessage)," +
 					 "FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser));";

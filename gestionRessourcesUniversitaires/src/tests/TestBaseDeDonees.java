@@ -1,21 +1,27 @@
 package tests;
+import java.util.Date;
+
 import bdd.BaseDeDonnees;
 import bdd.BaseDeDonneesException;
+import messages.Message;
+import utilisateurs.Enseignant;
+import utilisateurs.Etudiant;
 import utilisateurs.Groupe;
+import utilisateurs.Technicien;
 import utilisateurs.Utilisateur;
 public class TestBaseDeDonees {
 	public static void main (String[] args) throws BaseDeDonneesException {
 			BaseDeDonnees myBDD = new BaseDeDonnees();
-		//	myBDD.creationBDD();
+			//myBDD.creationBDD();
 			
-			//myBDD.createUser(new Etudiant("Leo","Etudiant","tdl41a","psswd"));
-			//myBDD.createUser(new Technicien("Louis","Technicien","tcl41a","psswd"));
-			//myBDD.createUser(new Enseignant("Michel","Enseignant","nsm41a","psswd"));
-			//myBDD.createUser(new Etudiant("Didier","Administratif","dmd41a","psswd"));
-			//myBDD.createUser(new Etudiant("Didier2","Administratif2","dmd41a2","psswd2"));
-			//myBDD.deleteUser("dmd41a2");
-			//myBDD.modifyUser(new Etudiant("LeoMODIF","Etudiant","tdl41a","psswd"));
-			//System.out.println(myBDD.connexion("tdl41a", "psswd"));
+			myBDD.createUser(new Etudiant("Leo","Etudiant","tdl41a","psswd"));
+			myBDD.createUser(new Technicien("Louis","Technicien","tcl41a","psswd"));
+			myBDD.createUser(new Enseignant("Michel","Enseignant","nsm41a","psswd"));
+			myBDD.createUser(new Etudiant("Didier","Administratif","dmd41a","psswd"));
+			myBDD.createUser(new Etudiant("Didier2","Administratif2","dmd41a2","psswd2"));
+			myBDD.deleteUser("dmd41a2");
+			myBDD.modifyUser(new Etudiant("LeoMODIF","Etudiant","tdl41a","psswd"));
+			System.out.println(myBDD.connexion("tdl41a", "psswd"));
 			Groupe g1 = myBDD.createGroup("Groupe 1");
 			Groupe g2 = myBDD.createGroup("Groupe 2");
 			Groupe g3 = myBDD.createGroup("Groupe 3");
@@ -30,5 +36,6 @@ public class TestBaseDeDonees {
 			System.out.println(myBDD.getUsersOfGroup(g1));
 			System.out.println(myBDD.getGroupsOfUser(u));
 			myBDD.deleteUserFromGroup(u, g2);
+			Message m = myBDD.creerMessage(new Message(u, "Test message corps", new Date()));
 	}
 }

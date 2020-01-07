@@ -29,6 +29,12 @@ public class Message implements Serializable {
 		this.message = message;
 		this.date = date;
 	}
+	
+	public Message(Utilisateur auteur, String message, Date date) {
+		this.auteur = auteur;
+		this.message = message;
+		this.date = date;
+	}
 
 	public String toString() {
 		return message;

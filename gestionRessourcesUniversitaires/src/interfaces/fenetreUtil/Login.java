@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import bdd.BaseDeDonnees;
 import interfaces.fenetreAdmin.MainAdminFrame;
 import interfaces.utilitaire.Bouton;
 
@@ -104,19 +105,23 @@ public class Login extends Fenetre{
 		top.add(topTitre);
 		top.add(Box.createHorizontalGlue());
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource() == login) {
-			if(utilisateurSaisie.getText().length() >= 3) {
+			BaseDeDonnees bdd = new BaseDeDonnees();
+			int connexion = bdd.connexion(utilisateurSaisie.getText(), new String(motDePasseSaisie.getPassword()));
+			System.out.println(utilisateurSaisie.getText() + " et " + motDePasseSaisie.getPassword().toString());
+			if (connexion == 1) {
 				if(utilisateurSaisie.getText().substring(0, 3).equals("adm")) {
-					new MainAdminFrame();
+					new MainAdminFrame(bdd);
 				}else {
-					new MainFrame("GRU", 4);
+					new MainFrame("GRU", bdd);
 				}
 				dispose();
 			} else {
-				JOptionPane.showMessageDialog(this, "Vous n'avez pas complété votre saisie",
+				JOptionPane.showMessageDialog(this, "Erreur de connexion. Veuillez réessayer.",
 						"Connexion", JOptionPane.INFORMATION_MESSAGE);
 			}
 		} else if(e.getSource() == exit) {

@@ -19,9 +19,9 @@ import utilisateurs.Utilisateur;
 
 public class BaseDeDonnees implements Serializable {
 	
-	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
+	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires";
 	private static String usernameBDD = "root";
-	private static String mdpBDD = "caca";
+	private static String mdpBDD = "root";
 	private static Connection connexion = null;
 	
 	private static final long serialVersionUID = 6429907995625047492L;
@@ -125,7 +125,7 @@ public class BaseDeDonnees implements Serializable {
 
 			try {
 				if(utilisateur.next()) {
-					//Récupération des champs
+					//Rï¿½cupï¿½ration des champs
 					String loginUser = utilisateur.getString("loginUser");
 					String password = utilisateur.getString("passwordUser");
 					String nom = utilisateur.getString("nomUser");
@@ -156,7 +156,7 @@ public class BaseDeDonnees implements Serializable {
 			catch (SQLException e) {
 				e.printStackTrace();
 			}
-		return null; //Si null c'est qu'il n'y a aucun résultat
+		return null; //Si null c'est qu'il n'y a aucun rï¿½sultat
 	}
 	
 	
@@ -174,12 +174,12 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public int deleteUser(String login) {
-		//Récupérer tous les groupes et supprimer dans appartenir
+		//Rï¿½cupï¿½rer tous les groupes et supprimer dans appartenir
 		String requete = "DELETE FROM Utilisateur WHERE loginUser = '" + login + "'";
 		return requeteExecuteUpdate(requete);
 	}
 	
-	//Modifier un utilisateur. Ca remplace tous les champs d'un user par défaut
+	//Modifier un utilisateur. Ca remplace tous les champs d'un user par dï¿½faut
 	public int modifyUser(Utilisateur user) {
 			String requete = "UPDATE Utilisateur SET ";
 			requete += "loginUser = '" + user.getUsername() + "', ";
@@ -198,7 +198,7 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			while(utilisateur.next()) {
-					//Récupération des champs
+					//Rï¿½cupï¿½ration des champs
 					String loginUser = utilisateur.getString("loginUser");
 					String password = utilisateur.getString("passwordUser");
 					String nom = utilisateur.getString("nomUser");
@@ -239,7 +239,7 @@ public class BaseDeDonnees implements Serializable {
 		ResultSet result = requeteExecuteQuerie(requete);
 		
 		try {
-			if(result.next()) //S'il y en a un, donc ça veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
+			if(result.next()) //S'il y en a un, donc ï¿½a veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
 				return 1;
 			else
 				return -1;
@@ -296,7 +296,7 @@ public class BaseDeDonnees implements Serializable {
 		int res = requeteExecuteUpdate(requete);
 		
 		if(res < 0)
-			throw new BaseDeDonneesException("Erreur création groupe");
+			throw new BaseDeDonneesException("Erreur crï¿½ation groupe");
 		
 		requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "' ORDER BY 'idGroupe' DESC";
 		ResultSet result = requeteExecuteQuerie(requete);
@@ -306,13 +306,13 @@ public class BaseDeDonnees implements Serializable {
 				int id = result.getInt("idGroupe");
 				return new Groupe(nom, id);
 			}
-			else { //Si aucun résultat
-				throw new BaseDeDonneesException("Aucun résultat création de groupe");
+			else { //Si aucun rï¿½sultat
+				throw new BaseDeDonneesException("Aucun rï¿½sultat crï¿½ation de groupe");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null; //Si aucun résultat
+		return null; //Si aucun rï¿½sultat
 	}
 	
 	
@@ -356,7 +356,7 @@ public class BaseDeDonnees implements Serializable {
 	
 	public List<Utilisateur> getUsersOfGroup(Groupe groupe){
 		
-		//Récupération de tous les Users qui correspondent au groupe
+		//Rï¿½cupï¿½ration de tous les Users qui correspondent au groupe
 		int id = groupe.getIdGroupe();
 		String requete = "SELECT * FROM Appartenir WHERE idGroupe =" + id;
 		ResultSet loginUsers = requeteExecuteQuerie(requete);
@@ -365,11 +365,11 @@ public class BaseDeDonnees implements Serializable {
 		
 		//Traitement des users
 		try {
-			while(loginUsers.next()) { //On parcours la liste des loginUser qu'on a récup
+			while(loginUsers.next()) { //On parcours la liste des loginUser qu'on a rï¿½cup
 				
 				String login = loginUsers.getString("loginUser");
 				
-				//Récupération de l'user en cours
+				//Rï¿½cupï¿½ration de l'user en cours
 				requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login +"'";
 				ResultSet currentUser = requeteExecuteQuerie(requete);
 				
@@ -425,7 +425,7 @@ public class BaseDeDonnees implements Serializable {
 		if(res < 0)
 			throw new BaseDeDonneesException("Erreur creer message");
 		
-		//On récupère l'id pour renvoyer le Message correspondant
+		//On rï¿½cupï¿½re l'id pour renvoyer le Message correspondant
 		requete = "SELECT * FROM Message WHERE ";
 		requete += "corpsMessage = '" + message.getMessage() + "' ";
 		requete += "AND dateMessage = " + message.getDate().getTime() + " ";
@@ -452,17 +452,17 @@ public class BaseDeDonnees implements Serializable {
 	
 	/********************************
 	 * 								*
-	 * 			Générique	 		*
+	 * 			Gï¿½nï¿½rique	 		*
 	 * 								*
 	 ********************************/
 	
-	//Envoi d'une requête de type "Update/Delete/Insert" à la BDD
+	//Envoi d'une requï¿½te de type "Update/Delete/Insert" ï¿½ la BDD
 	private int requeteExecuteUpdate(String requete) {
 		try {
-			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
-			Statement statement = connexion.createStatement(); //Création de la future requête
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co ï¿½ la BDD
+			Statement statement = connexion.createStatement(); //Crï¿½ation de la future requï¿½te
 			
-			int res = statement.executeUpdate(requete); //Exécution
+			int res = statement.executeUpdate(requete); //Exï¿½cution
 			statement.close(); //Fermeture
 			
 			return res;
@@ -474,11 +474,11 @@ public class BaseDeDonnees implements Serializable {
 		return -1;
 	}
 	
-	//Envoi d'une requête de type "Select" à la BDD
+	//Envoi d'une requï¿½te de type "Select" ï¿½ la BDD
 	private ResultSet requeteExecuteQuerie(String requete) {
 		try {
-			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
-			Statement statement = connexion.createStatement(); //Création de la future requête
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co ï¿½ la BDD
+			Statement statement = connexion.createStatement(); //Crï¿½ation de la future requï¿½te
 			
 			ResultSet resultSet = statement.executeQuery(requete);
 			return resultSet;
@@ -493,8 +493,8 @@ public class BaseDeDonnees implements Serializable {
 	/*TODO
 	 * Supprimer groupe : supprimer appartenir aussi
 	 * Supprimer utilisateur : supprimer appartenir
-	 * Méthode supprimer message d'un user
-	 * Récupérer tous les users de la BDD
-	 * Récupérer tous les groupes de la BDD
+	 * Mï¿½thode supprimer message d'un user
+	 * Rï¿½cupï¿½rer tous les users de la BDD
+	 * Rï¿½cupï¿½rer tous les groupes de la BDD
 	 */
 }

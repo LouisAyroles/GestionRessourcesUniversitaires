@@ -8,6 +8,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -18,9 +20,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import bdd.BaseDeDonnees;
 import interfaces.fenetreUtil.Fenetre;
 import interfaces.fenetreUtil.Login;
 import interfaces.utilitaire.Bouton;
+import utilisateurs.Groupe;
+import utilisateurs.Utilisateur;
 
 /**
  * @author lamp
@@ -28,7 +33,7 @@ import interfaces.utilitaire.Bouton;
  */
 public class MainAdminFrame extends Fenetre{
 
-
+	private BaseDeDonnees bdd;
 	private JOptionPane effaceDemande = new JOptionPane();
 	private JPanel left = new JPanel();
 	private JPanel middle = new JPanel();
@@ -52,8 +57,9 @@ public class MainAdminFrame extends Fenetre{
 	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	
 	
-	public MainAdminFrame() {
+	public MainAdminFrame(BaseDeDonnees bdd) {
 		super("Interface d'administration Serveur (GRU)");
+		this.bdd = bdd;
 		setSize((int)(getCurrentScreenSize().getWidth()),(int)(getCurrentScreenSize().getHeight()));
 		positionnerCentre();
 		initLeft();
@@ -84,8 +90,13 @@ public class MainAdminFrame extends Fenetre{
 		}else if(e.getSource() == nouv.getValider()) {
 			saisieGroupe = nouv.getSaisie();
 			nouv.dispose();
-			listGroup.add(saisieGroupe);
-			listGroupe.setViewportView(groupes);
+			try {
+				Groupe nouv = bdd.createGroup(saisieGroupe);
+				listGroup.add(nouv.toString());
+				listGroupe.setViewportView(groupes);
+			} catch(Exception ex) {
+				System.out.println("Pas Cool");
+			}
 		}
 	}
 	
@@ -106,8 +117,8 @@ public class MainAdminFrame extends Fenetre{
 		deleteGroup.addActionListener(this);
 		editGroup.addActionListener(this);
 		left.add(bas, BorderLayout.SOUTH);
-		for(int i = 0; i < 6; i++) {
-			listGroup.add("Groupe TD A"+(i+1));
+		for(Groupe group : bdd.getAllGroup()) {
+			listGroup.add(group.toString());
 		}
 		listGroupe.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		left.add(listGroupe, BorderLayout.CENTER);
@@ -131,9 +142,9 @@ public class MainAdminFrame extends Fenetre{
 		deleteUser.addActionListener(this);
 		editUser.addActionListener(this);
 		middle.add(bas, BorderLayout.SOUTH);
-		listUser.add("Jean P");
-		listUser.add("Benoît S");
-		listUser.add("François P");
+		for(Utilisateur user : bdd.getAllUser()) {
+			listUser.add(user.toString());
+		}
 		mid.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		middle.add(mid, BorderLayout.CENTER);
 	}

@@ -12,12 +12,15 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 
+import bdd.BaseDeDonnees;
+
 public class MainFrame extends Fenetre{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private BaseDeDonnees bdd;
 	private JSplitPane right = new JSplitPane();
 	private JSplitPane fenetre = new JSplitPane();
 	private JPanel conversations = new JPanel();
@@ -31,8 +34,9 @@ public class MainFrame extends Fenetre{
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
-	public MainFrame(String title, int nbConversations) {
+	public MainFrame(String title, BaseDeDonnees bdd) {
 		super(title);
+		this.bdd = bdd;
 		this.nbConversations = nbConversations;
 		setSize((int)getCurrentScreenSize().getWidth(),(int)getCurrentScreenSize().getHeight());
 		initConversations();

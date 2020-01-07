@@ -20,6 +20,11 @@ public class Groupe implements Serializable{
 		this.nom=n;
 	}
 	
+	public Groupe(String nomGroupe, int id) {
+		this.nom = nomGroupe;
+		this.idGroupe = id;
+	}
+
 	@Override
 	public String toString() {
 		return nom;

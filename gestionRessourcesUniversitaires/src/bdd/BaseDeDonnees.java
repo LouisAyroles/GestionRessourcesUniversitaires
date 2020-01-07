@@ -6,7 +6,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
+import messages.Message;
 import utilisateurs.Administratif;
 import utilisateurs.Enseignant;
 import utilisateurs.Etudiant;
@@ -15,13 +18,14 @@ import utilisateurs.Technicien;
 import utilisateurs.Utilisateur;
 
 public class BaseDeDonnees implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-	static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires";
-	static String usernameBDD = "root";
-	static String mdpBDD = "root";
-	static Connection connexion = null;
-
+	
+	private static String urlBDD = "jdbc:mysql://localhost:3306/projetl3?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
+	private static String usernameBDD = "root";
+	private static String mdpBDD = "caca";
+	private static Connection connexion = null;
+	
+	private static final long serialVersionUID = 6429907995625047492L;
+	
 	public void creationBDD() throws BaseDeDonneesException {
 		try {
 
@@ -94,7 +98,7 @@ public class BaseDeDonnees implements Serializable {
 			String[] requetes = requeteSQL.split(";");
 
 			for (String r : requetes) {
-				int res = s.executeUpdate(r + ";");
+				s.executeUpdate(r + ";");
 			}
 
 			// ajoutGroupeBDD(new Groupe("Tous les utilisateurs"));
@@ -107,84 +111,330 @@ public class BaseDeDonnees implements Serializable {
 			throw new BaseDeDonneesException();
 		}
 	}
+	
+	
+	/********************************
+	 * 								*
+	 * 			Utilisateur 		*
+	 * 								*
+	 ********************************/
+	
+	public Utilisateur usernameVersUtilisateur(String login) throws BaseDeDonneesException {
+			String requete = "SELECT * FROM UTILISATEUR WHERE LOGINUSER = \"" + login + "\"";
+			ResultSet utilisateur = requeteExecuteQuerie(requete);
 
-	public Utilisateur connexion(String username, String password) {
-		String usernameSearch = "";
-		String passwordSearch = "";
-		Utilisateur user = null;
-		int idUser = 0;
-		
-		try {
-			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD);
-			Statement s = connexion.createStatement();
-			String requeteSQL = "SELECT loginUser,passwordUser FROM Utilisateur WHERE loginUser='" + usernameSearch
-					+ "';";
-			ResultSet res = s.executeQuery(requeteSQL);
-			if(res.next()) {
-				usernameSearch = res.getString("loginUser");
-				passwordSearch = res.getString("passwordUser");
-			}
-			
-			if ( username.equals(usernameSearch) && password.equals(passwordSearch) && !password.equals("")) {
-				user = usernameVersUtilisateur(username);
-			}
-		} catch ( SQLException e ) {
-			
-		} finally {
-			if (connexion!= null) {
-				try {
-					connexion.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
+			try {
+				if(utilisateur.next()) {
+					//Récupération des champs
+					String loginUser = utilisateur.getString("loginUser");
+					String password = utilisateur.getString("passwordUser");
+					String nom = utilisateur.getString("nomUser");
+					String prenom = utilisateur.getString("prenomUser");
+					String type = utilisateur.getString("typeUser");
+					switch(type) {
+						case "ETUDIANT":
+							return new Etudiant(nom, prenom, loginUser, password);
+							
+						case "ENSEIGNANT":
+							return new Enseignant(nom, prenom, loginUser, password);
+							
+						case "ADMINISTRATIF":
+							return new Administratif(nom, prenom, loginUser, password);
+							
+						case "TECHNICIEN":
+							return new Technicien(nom, prenom, loginUser, password);
+							
+						default:
+							break;
+					}
+				}//End if
+				else {
+					System.out.println("Aucun résultat");
 				}
+			} //End try
+			catch (SQLException e) {
+				e.printStackTrace();
 			}
-		}
-		return user;
+		return null; //Si null c'est qu'il n'y a aucun résultat
 	}
 	
-	public Utilisateur usernameVersUtilisateur (String username) {
-		Utilisateur user = null;
-		String password = "";
-		String nom = "";
-		String prenom = "";
-		String type = "";
-		
+	
+	public int createUser(Utilisateur user) {
+		String requete = "INSERT INTO UTILISATEUR VALUES (";
+		requete += "'" + user.getUsername() + "',";
+		requete += "'" + user.getPassword() + "',";
+		requete += "'" + user.getNom() + "',";
+		requete += "'" + user.getPrenom() + "',";
+		requete += "'" + user.getType() + "'";
+		requete += ")";
+		return requeteExecuteUpdate(requete);
+	}
+	
+	public int deleteUser(String login) {
+		//Récupérer tous les groupes et supprimer dans appartenir
+		String requete = "DELETE FROM UTILISATEUR WHERE loginUser = '" + login + "'";
+		return requeteExecuteUpdate(requete);
+	}
+	
+	//Modifier un utilisateur. Ca remplace tous les champs d'un user par défaut
+	public int modifyUser(Utilisateur user) {
+			String requete = "UPDATE UTILISATEUR SET ";
+			requete += "loginUser = '" + user.getUsername() + "',";
+			requete += "passwordUser = '" + user.getPassword() + ", ";
+			requete += "nomUser = '" + user.getNom() + "', ";
+			requete += "prenomUser = '" + user.getPrenom() + "',";
+			requete += "typeUser = '" + user.getType() +"'";
+			requete += "WHERE loginUser = '" + user.getUsername() + "'";
+		return requeteExecuteUpdate(requete);
+	}
+	
+	public int connexion(String login, String password) {
+		String requete = "SELECT * FROM UTILISATEUR";
+		requete += " WHERE loginUser = '" + login + "'";
+		requete += " AND passwordUser = '" + password +"'";
+		ResultSet result = requeteExecuteQuerie(requete);
 		
 		try {
-			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD);
-
-			Statement statement = connexion.createStatement();
-			ResultSet resultat = statement.executeQuery("SELECT * FROM Utilisateur WHERE loginUser='" + username + "';");
-			if (resultat.next()) {
-
-				password = resultat.getString("passwordUser");
-				nom = resultat.getString("nomUser");
-				prenom = resultat.getString("prenomUser");
-				type = resultat.getString("typeUser");
-			}
-			switch(type) {
-			case "ETUDIANT":
-				user = new Etudiant(nom,prenom,username,password);
-				break;
-			case "ENSEIGNANT":
-				user = new Enseignant(nom, prenom, username, password);
-				break;
-			case "ADMINISTRATIF":
-				user = new Administratif(nom, prenom, username, password);
-				break;
-			case "TECHNICIEN":
-				user = new Technicien(nom, prenom, username, password);
-				break;
-			default:
-				break;
-			}
-		}catch (Exception e) {
+			if(result.next()) //S'il y en a un, donc ça veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
+				return 1;
+			else
+				return -1;
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return user;
+		return -1;
 	}
 	
-	public void ajoutUtilisateur(Utilisateur user) {
-			
+	
+	public List<Groupe> getGroupsOfUser(Utilisateur user){
+		String login = user.getUsername();
+		String requete = "SELECT * FROM APPARTENIR WHERE loginUser = '" + login +"'";
+		ResultSet groupeId = requeteExecuteQuerie(requete);
+		List<Groupe> listeReturn = new ArrayList<>();
+		
+		try {
+			while(groupeId.next()) {
+				int id = groupeId.getInt("idGroupe");
+				requete = "SELECT * FROM GROUPEUSER WHERE idGroupe = " + id;
+				ResultSet groupe = requeteExecuteQuerie(requete);
+				
+				if(groupe.next()) {
+					String nomGroupe = groupe.getString("nomGroupe");
+					listeReturn.add(new Groupe(nomGroupe, id));
+				}//End if
+			}//End while
+		}//End try
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return listeReturn;
 	}
+	
+	
+	public int deleteUserFromGroup(Utilisateur user, Groupe group) {//Supprimer un user d'un groupe
+		int idGroupe = group.getIdGroupe();
+		String login = user.getUsername();
+		String requete = "DELETE FROM APPARTENIR WHERE ";
+		requete += "loginUser = '" + login + "' ";
+		requete += "AND idGroupe = " + idGroupe;
+		
+		return requeteExecuteUpdate(requete);
+	}
+	
+	/********************************
+	 * 								*
+	 * 			Groupe		 		*
+	 * 								*
+	 ********************************/
+	
+	public Groupe createGroup(String nom) throws BaseDeDonneesException {
+		String requete = "INSERT INTO GROUPEUSER(nomGroupe) VALUES('" + nom +"')";
+		int res = requeteExecuteUpdate(requete);
+		
+		if(res < 0)
+			throw new BaseDeDonneesException("Erreur création groupe");
+		
+		requete = "SELECT * FROM GROUPEUSER WHERE nomGroupe = '" + nom + "' ORDER BY 'idGroupe' DESC";
+		ResultSet result = requeteExecuteQuerie(requete);
+		
+		try {
+			if(result.next()) {
+				int id = result.getInt("idGroupe");
+				return new Groupe(nom, id);
+			}
+			else { //Si aucun résultat
+				throw new BaseDeDonneesException("Aucun résultat création de groupe");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null; //Si aucun résultat
+	}
+	
+	public int deleteGroup(Groupe groupe) {
+		/* Todo
+		 * Supprimer tout ce qui est en lien ?
+		 */
+		String requete = "DELETE FROM GROUPEUSER WHERE idGroupe = " + groupe.getIdGroupe() + " AND nomGroupe = '" + groupe.getNom() + "'";
+		return requeteExecuteUpdate(requete);
+	}
+		
+	public int modifyGroup(Groupe groupe) {
+		String requete = "UPDATE GROUPEUSER SET ";
+		requete += "nomGroupe = '" + groupe.getNom() + "' ";
+		requete += "WHERE idGroupe = '" + groupe.getIdGroupe() +"'";
+		return requeteExecuteUpdate(requete);
+	}
+	
+	public int addUserToGroup(Groupe groupe, Utilisateur user) {
+		String requete ="INSERT INTO APPARTENIR VALUES(";
+		requete += "'" + user.getUsername() + "', ";
+		requete += groupe.getIdGroupe();
+		requete += ")";
+		return requeteExecuteUpdate(requete);
+ 	}
+	
+	public List<Utilisateur> getUsersOfGroup(Groupe groupe){
+		
+		//Récupération de tous les Users qui correspondent au groupe
+		int id = groupe.getIdGroupe();
+		String requete = "SELECT * FROM APPARTENIR WHERE idGroupe =" + id;
+		ResultSet loginUsers = requeteExecuteQuerie(requete);
+		List<Utilisateur> listeReturn = new ArrayList<Utilisateur>();
+		
+		
+		//Traitement des users
+		try {
+			while(loginUsers.next()) { //On parcours la liste des loginUser qu'on a récup
+				
+				String login = loginUsers.getString("loginUser");
+				
+				//Récupération de l'user en cours
+				requete = "SELECT * FROM UTILISATEUR WHERE loginUser = '" + login +"'";
+				ResultSet currentUser = requeteExecuteQuerie(requete);
+				
+				if(currentUser.next()) {
+					String nom = currentUser.getString("nomUser");
+					String prenom = currentUser.getString("prenomUser");
+					String password = currentUser.getString("passwordUser");
+					String type = currentUser.getString("typeUser");
+					
+					switch(type) {
+						case "ETUDIANT":
+							listeReturn.add(new Etudiant(nom, prenom, nom, password));
+							break;
+						case "ENSEIGNANT":
+							listeReturn.add(new Enseignant(nom, prenom, nom, password));
+							break;
+						case "ADMINISTRATIF":
+							listeReturn.add(new Administratif(nom, prenom, nom, password));
+							break;
+						case "TECHNICIEN":
+							listeReturn.add(new Technicien(nom, prenom, nom, password));
+							break;
+						default:
+							break;
+					}//End switch
+				}//End if
+			}//End while
+		}//End try
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listeReturn;
+	}
+	
+	/********************************
+	 * 								*
+	 * 			Message		 		*
+	 * 								*
+	 * @throws BaseDeDonneesException 
+	 ********************************/
+	
+	public Message creerMessage(Message message) throws BaseDeDonneesException {
+		
+		//Insert dans la table Message
+		String requete = "INSERT INTO MESSAGE(corpsMessage, dateMessage, loginUser) VALUES(";
+		requete += "'" + message.getMessage() + "', ";
+		requete += message.getDate().getTime() + ", ";
+		requete += "'" + message.getAuteur().getUsername() +"'";
+		requete += ")";
+		
+		int res = requeteExecuteUpdate(requete);
+		if(res < 0)
+			throw new BaseDeDonneesException("Erreur creer message");
+		
+		//On récupère l'id pour renvoyer le Message correspondant
+		requete = "SELECT * FROM MESSAGE WHERE ";
+		requete += "corpsMessage = '" + message.getMessage() + "' ";
+		requete += "AND dateMessage = " + message.getDate().getTime() + " ";
+		requete += "AND loginUser = '" + message.getAuteur().getUsername() + "' ";
+		requete += "ORDER BY idMessage DESC";
+		ResultSet messageRes = requeteExecuteQuerie(requete);
+		
+		try {
+			if(messageRes.next()) {
+				return new Message(
+						message.getAuteur(),
+						message.getMessage(),
+						message.getDate(),
+						messageRes.getInt("idMessage"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	
+	
+	/********************************
+	 * 								*
+	 * 			Générique	 		*
+	 * 								*
+	 ********************************/
+	
+	//Envoi d'une requête de type "Update/Delete/Insert" à la BDD
+	private int requeteExecuteUpdate(String requete) {
+		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			
+			int res = statement.executeUpdate(requete); //Exécution
+			statement.close(); //Fermeture
+			
+			return res;
+			
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	//Envoi d'une requête de type "Select" à la BDD
+	private ResultSet requeteExecuteQuerie(String requete) {
+		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			
+			ResultSet resultSet = statement.executeQuery(requete);
+			return resultSet;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	/*TODO
+	 * Supprimer groupe : supprimer appartenir aussi
+	 * Supprimer utilisateur : supprimer appartenir
+	 * Modifier message ?
+	 * Méthode supprimer message d'un user
+	 * Supprimer message dans "envoyer"
+	 */
 }

@@ -2,7 +2,8 @@ package utilisateurs;
 import java.io.Serializable;
 
 public abstract class Utilisateur implements Serializable {
-	private static final long serialVersionUID = 0;
+
+	private static final long serialVersionUID = -458874612818612194L;
 	private String nom;
 	private String prenom;
 	private String username;

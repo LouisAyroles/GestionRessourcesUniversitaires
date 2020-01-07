@@ -8,7 +8,8 @@ import utilisateurs.Groupe;
 import utilisateurs.Utilisateur;
 
 public class Discussion implements Serializable{
-	private static final long serialVersionUID = 0;
+
+	private static final long serialVersionUID = -56029639858834765L;
 	private String titre;
 	private Utilisateur createur;
 	private Groupe groupe;

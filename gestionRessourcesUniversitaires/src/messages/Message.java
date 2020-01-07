@@ -23,6 +23,13 @@ public class Message implements Serializable {
 		this.type = t;
 	}
 	
+	public Message(Utilisateur auteur, String message, Date date, int id) {
+		this.auteur = auteur;
+		this.idMessage = id;
+		this.message = message;
+		this.date = date;
+	}
+
 	public String toString() {
 		return message;
 	}

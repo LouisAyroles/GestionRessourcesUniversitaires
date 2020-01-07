@@ -23,12 +23,14 @@ public abstract class Fenetre extends JFrame implements ActionListener{
 	public Fenetre() {
 		currentScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setContentPane(container);
 	}
 	
 	public Fenetre(String titre) {
 		currentScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle(titre);
+		setContentPane(container);
 	}
 	
 	public void positionnerCentre() {

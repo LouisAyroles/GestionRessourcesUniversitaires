@@ -12,10 +12,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import interfaces.fenetreAdmin.MainAdminFrame;
 import interfaces.utilitaire.Bouton;
 
 /**
@@ -34,7 +36,6 @@ public class Login extends Fenetre{
 	private Bouton login = new Bouton("Connexion");
 	private Bouton exit = new Bouton("Quitter");
 	private JPanel bot = new JPanel();
-	private JPanel middle = new JPanel();
 	private JLabel utilisateur = new JLabel("nom d'utilisateur :");
 	private JLabel mdp = new JLabel("mot de passe :");
 	private JLabel adresseIP = new JLabel("Ip serveur :");
@@ -50,47 +51,40 @@ public class Login extends Fenetre{
 		setTitle("Identification");
 		initBot();
 		initTop();
-		initMiddle();
 		initContainer();
 		positionnerCentre();
 		setResizable(false);
 		setVisible(true);
 	}
+	
 	@Override
 	public void initContainer() {
 		// TODO Auto-generated method stub
-		container.setLayout(new BorderLayout());
-		container.add(top, BorderLayout.NORTH);
-		container.add(bot, BorderLayout.SOUTH);
-		container.add(middle, BorderLayout.CENTER);
-		setContentPane(container);
-	}
-	
-	public void initMiddle() {
-		JPanel haut = new JPanel();
-		JPanel milieu = new JPanel();
-		JPanel bas = new JPanel();
-		middle.setLayout(new GridLayout(7,1));
-		haut.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
-		haut.add(utilisateur);
-		haut.add(utilisateurSaisie);
+		container.setLayout(new GridLayout(9,1));
+		container.add(new JPanel());
+		container.add(top);
+		container.add(new JPanel());
+		JPanel hautMid = new JPanel();
+		hautMid.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
+		hautMid.add(utilisateur);
+		hautMid.add(utilisateurSaisie);
+		container.add(hautMid);
+		JPanel milieuMid = new JPanel();
+		milieuMid.setLayout(new FlowLayout(FlowLayout.CENTER,57,20));
+		milieuMid.add(mdp);
+		milieuMid.add(motDePasseSaisie);
+		container.add(milieuMid);
+		
+		JPanel basMid = new JPanel();
 
-		milieu.setLayout(new FlowLayout(FlowLayout.CENTER,57,20));
-		milieu.add(mdp);
-		milieu.add(motDePasseSaisie);
-		
-		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 78, 20));
-		bas.add(adresseIP);
-		bas.add(adresseIPSaisie);
-		
-		
-		middle.add(new JLabel());
-		middle.add(new JLabel());
-		middle.add(haut);
-		middle.add(milieu);
-		middle.add(bas);
-		middle.add(new JLabel());
-		middle.add(new JLabel());
+		basMid.setLayout(new FlowLayout(FlowLayout.CENTER, 78, 20));
+		basMid.add(adresseIP);
+		basMid.add(adresseIPSaisie);
+	    container.add(basMid);
+	    
+		container.add(new JPanel());
+		container.add(bot);
+		container.add(new JPanel());
 	}
 
 	public void initBot() {
@@ -114,8 +108,17 @@ public class Login extends Fenetre{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource() == login) {
-			new MainFrame("GRU", 4);
-			dispose();
+			if(utilisateurSaisie.getText().length() >= 3) {
+				if(utilisateurSaisie.getText().substring(0, 3).equals("adm")) {
+					new MainAdminFrame();
+				}else {
+					new MainFrame("GRU", 4);
+				}
+				dispose();
+			} else {
+				JOptionPane.showMessageDialog(this, "Vous n'avez pas complété votre saisie",
+						"Connexion", JOptionPane.INFORMATION_MESSAGE);
+			}
 		} else if(e.getSource() == exit) {
 			dispose();
 		}

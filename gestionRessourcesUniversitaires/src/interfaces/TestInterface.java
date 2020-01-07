@@ -3,6 +3,7 @@
  */
 package interfaces;
 
+import interfaces.fenetreAdmin.MainAdminFrame;
 import interfaces.fenetreUtil.Login;
 
 /**
@@ -16,8 +17,8 @@ public class TestInterface {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		@SuppressWarnings("unused")
-		Login l = new Login();
+		//@SuppressWarnings("unused")
+		new Login();
 	}
 
 }

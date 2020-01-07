@@ -37,5 +37,7 @@ public class TestBaseDeDonees {
 			System.out.println(myBDD.getGroupsOfUser(u));
 			myBDD.deleteUserFromGroup(u, g2);
 			Message m = myBDD.creerMessage(new Message(u, "Test message corps", new Date()));
+			System.out.println(myBDD.getAllUser());
+			System.out.println(myBDD.getAllGroup());
 	}
 }

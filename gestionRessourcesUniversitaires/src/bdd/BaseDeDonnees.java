@@ -147,7 +147,7 @@ public class BaseDeDonnees implements Serializable {
 							
 						default:
 							break;
-					}
+					}//End switch
 				}//End if
 				else {
 					return null;
@@ -189,6 +189,47 @@ public class BaseDeDonnees implements Serializable {
 			requete += "typeUser = '" + user.getType() +"' ";
 			requete += "WHERE loginUser = '" + user.getUsername() + "'";
 		return requeteExecuteUpdate(requete);
+	}
+	
+	public List<Utilisateur> getAllUser(){
+		String requete = "SELECT * FROM Utilisateur";
+		List<Utilisateur> listeReturn = new ArrayList<>();
+		ResultSet utilisateur = requeteExecuteQuerie(requete);
+		
+		try {
+			while(utilisateur.next()) {
+					//Récupération des champs
+					String loginUser = utilisateur.getString("loginUser");
+					String password = utilisateur.getString("passwordUser");
+					String nom = utilisateur.getString("nomUser");
+					String prenom = utilisateur.getString("prenomUser");
+					String type = utilisateur.getString("typeUser");
+					switch(type) {
+						case "ETUDIANT":
+							listeReturn.add(new Etudiant(nom, prenom, loginUser, password));
+							break;
+							
+						case "ENSEIGNANT":
+							listeReturn.add(new Enseignant(nom, prenom, loginUser, password));
+							break;
+							
+						case "ADMINISTRATIF":
+							listeReturn.add(new Administratif(nom, prenom, loginUser, password));
+							break;
+							
+						case "TECHNICIEN":
+							listeReturn.add(new Technicien(nom, prenom, loginUser, password));
+							break;
+							
+						default:
+							break;
+					}//End switch
+			}//End while
+		}//End try 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return listeReturn;
 	}
 	
 	public int connexion(String login, String password) {
@@ -272,6 +313,22 @@ public class BaseDeDonnees implements Serializable {
 			e.printStackTrace();
 		}
 		return null; //Si aucun résultat
+	}
+	
+	
+	public List<Groupe> getAllGroup(){
+		String requete = "SELECT * FROM GroupeUser";
+		ResultSet groupe = requeteExecuteQuerie(requete);
+		List<Groupe> listeReturn = new ArrayList<>();
+		
+		try {
+			while(groupe.next()) {
+				listeReturn.add(new Groupe(groupe.getString("nomGroupe"), groupe.getInt("idGroupe")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return listeReturn;
 	}
 	
 	public int deleteGroup(Groupe groupe) {

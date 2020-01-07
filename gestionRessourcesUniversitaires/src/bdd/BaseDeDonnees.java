@@ -34,17 +34,62 @@ public class BaseDeDonnees implements Serializable {
 
 			// Requetes qui vont permettre de construire la base de donnees
 			
-			//DROP DATABASE IF EXISTS BDD_gestion_ressources_universitaires
-			String requeteSQL = "CREATE DATABASE BDD_gestion_ressources_universitaires;USE BDD_gestion_ressources_universitaires;";
+			String requeteSQL = "DROP DATABASE IF EXISTS BDD_gestion_ressources_universitaires;CREATE DATABASE BDD_gestion_ressources_universitaires;USE BDD_gestion_ressources_universitaires;";
 
-			requeteSQL += "CREATE TABLE UTILISATEUR(USERNAME VARCHAR(100) NOT NULL, PASSWORD VARCHAR(100), NOM_USER VARCHAR(100), PRENOM_USER VARCHAR(100), TYPE_USER ENUM('ENSEIGNANT','ETUDIANT','TECHNICIEN','ADMINISTRATIF'), PRIMARY KEY (USERNAME));";
-			requeteSQL += "CREATE TABLE MESSAGE( ID_MESSAGE INT NOT NULL AUTO_INCREMENT, CONTENU_MESSAGE VARCHAR(2048), PRIMARY KEY (ID_MESSAGE));";
-			requeteSQL += "CREATE TABLE DISCUSSION( ID_DISCUSSION INT NOT NULL AUTO_INCREMENT, TITRE_DISCUSSION VARCHAR(100), PRIMARY KEY (ID_DISCUSSION));";
-			requeteSQL += "CREATE TABLE GROUPE( ID_GROUPE INT NOT NULL AUTO_INCREMENT, NOM_GROUPE VARCHAR(100), PRIMARY KEY (ID_GROUPE));";
-			requeteSQL += "CREATE TABLE APPARTENIR( ID_GROUPE INT NOT NULL, USERNAME VARCHAR(100) NOT NULL PRIMARY KEY (ID_GROUPE,USERNAME), FOREIGN KEY (ID_GROUPE) REFERENCES GROUPE(ID_GROUPE), FOREIGN KEY (USERNAME) REFERENCES UTILISATEUR(USERNAME));";
-			requeteSQL += "CREATE TABLE ENVOYER( USERNAME VARCHAR(100) NOT NULL, ID_MESSAGE INT NOT NULL, DATE_ENVOI_MESSAGE DATETIME, PRIMARY KEY (USERNAME,ID_MESSAGE), FOREIGN KEY (USERNAME) REFERENCES UTILISATEUR(USERNAME), FOREIGN KEY (ID_MESSAGE) REFERENCES MESSAGE(ID_MESSAGE));";
-			requeteSQL += "CREATE TABLE CONTIENT( ID_DISCUSSION INT NOT NULL, ID_MESSAGE INT NOT NULL, PRIMARY KEY (ID_DISCUSSION,ID_MESSAGE), FOREIGN KEY (ID_MESSAGE) REFERENCES MESSAGE(ID_MESSAGE), FOREIGN KEY (ID_DISCUSSION) REFERENCES DISCUSSION(ID_DISCUSSION));";
-			requeteSQL += "CREATE TABLE CREER( ID_DISCUSSION INT NOT NULL, USERNAME VARCHAR(100) NOT NULL, PRIMARY KEY (ID_DISCUSSION,USERNAME), FOREIGN KEY (ID_DISCUSSION) REFERENCES DISCUSSION(ID_DISCUSSION), FOREIGN KEY (USERNAME) REFERENCES UTILISATEUR(USERNAME));";
+			//table utilisateur
+			requeteSQL += "CREATE TABLE Utilisateur(" + 
+					"loginUser VARCHAR(100)," + 
+					"passwordUser VARCHAR(50) NOT NULL," + 
+					"nomUser VARCHAR(50) NOT NULL," + 
+					"prenomUser VARCHAR(50) NOT NULL," + 
+					"typeUser ENUM('ENSEIGNANT','ETUDIANT','TECHNICIEN','ADMINISTRATIF') NOT NULL," + 
+					"PRIMARY KEY(loginUser));";
+			
+			//table message
+			requeteSQL += "CREATE TABLE Message(" +
+					 "idMessage INT AUTO_INCREMENT," +
+					 "corpsMessage TEXT NOT NULL," +
+					 "dateMessage INT NOT NULL," +
+					 "loginUser VARCHAR(100) NOT NULL," +
+					 "PRIMARY KEY(idMessage)," +
+					 "FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser));";
+			
+			//table GroupeUser
+			requeteSQL += "CREATE TABLE GroupeUser(" + 
+					"idGroupe INT AUTO_INCREMENT," + 
+					"nomGroupe VARCHAR(50) NOT NULL," + 
+					"PRIMARY KEY(idGroupe));";
+			
+			//table Fil
+			requeteSQL += "CREATE TABLE Fil(" + 
+					"idFil INT," + 
+					"titre VARCHAR(50)," + 
+					"PRIMARY KEY(idFil)," + 
+					"FOREIGN KEY(idFil) REFERENCES Message(idMessage));";
+			
+			//table Appartenir qui lie un utilisateur a un groupe
+			requeteSQL += "CREATE TABLE Appartenir(" + 
+					"loginUser VARCHAR(100)," + 
+					"idGroupe INT," + 
+					"PRIMARY KEY(loginUser, idGroupe)," + 
+					"FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser)," + 
+					"FOREIGN KEY(idGroupe) REFERENCES GroupeUser(idGroupe));";
+			
+			
+			requeteSQL += "CREATE TABLE Correspondre(" + 
+					"idGroupe INT," + 
+					"idFil INT," + 
+					"PRIMARY KEY(idGroupe, idFil)," + 
+					"FOREIGN KEY(idGroupe) REFERENCES GroupeUser(idGroupe)," + 
+					"FOREIGN KEY(idFil) REFERENCES Fil(idFil));";
+			
+			
+			requeteSQL += "CREATE TABLE Contenir(" + 
+					"idMessage INT," + 
+					"idFil INT," + 
+					"PRIMARY KEY(idMessage, idFil)," + 
+					"FOREIGN KEY(idMessage) REFERENCES Message(idMessage)," + 
+					"FOREIGN KEY(idFil) REFERENCES Fil(idFil));";
 
 			String[] requetes = requeteSQL.split(";");
 
@@ -72,13 +117,12 @@ public class BaseDeDonnees implements Serializable {
 		try {
 			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD);
 			Statement s = connexion.createStatement();
-			String requeteSQL = "SELECT USERNAME,PASSWORD,ID_USER FROM UTILISATEUR WHERE USERNAME='" + usernameSearch
+			String requeteSQL = "SELECT loginUser,passwordUser FROM Utilisateur WHERE loginUser='" + usernameSearch
 					+ "';";
 			ResultSet res = s.executeQuery(requeteSQL);
 			if(res.next()) {
-				usernameSearch = res.getString("USERNAME");
-				passwordSearch = res.getString("PASSWORD");
-				idUser = res.getInt("ID_USER");
+				usernameSearch = res.getString("loginUser");
+				passwordSearch = res.getString("passwordUser");
 			}
 			
 			if ( username.equals(usernameSearch) && password.equals(passwordSearch) && !password.equals("")) {
@@ -110,14 +154,13 @@ public class BaseDeDonnees implements Serializable {
 			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD);
 
 			Statement statement = connexion.createStatement();
-			ResultSet resultat = statement.executeQuery("SELECT * FROM UTILISATEUR WHERE USERNAME='" + username + "';");
+			ResultSet resultat = statement.executeQuery("SELECT * FROM Utilisateur WHERE loginUser='" + username + "';");
 			if (resultat.next()) {
 
-				username = resultat.getString("USERNAME");
-				password = resultat.getString("PASSWORD");
-				nom = resultat.getString("NOM_USER");
-				prenom = resultat.getString("PRENOM_USER");
-				type = resultat.getString("TYPE_USER");
+				password = resultat.getString("passwordUser");
+				nom = resultat.getString("nomUser");
+				prenom = resultat.getString("prenomUser");
+				type = resultat.getString("typeUser");
 			}
 			switch(type) {
 			case "ETUDIANT":

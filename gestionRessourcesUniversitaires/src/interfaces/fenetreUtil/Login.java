@@ -12,10 +12,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import interfaces.fenetreAdmin.MainAdminFrame;
 import interfaces.utilitaire.Bouton;
 
 /**
@@ -106,8 +108,17 @@ public class Login extends Fenetre{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource() == login) {
-			new MainFrame("GRU", 4);
-			dispose();
+			if(utilisateurSaisie.getText().length() >= 3) {
+				if(utilisateurSaisie.getText().substring(0, 3).equals("adm")) {
+					new MainAdminFrame();
+				}else {
+					new MainFrame("GRU", 4);
+				}
+				dispose();
+			} else {
+				JOptionPane.showMessageDialog(this, "Vous n'avez pas complété votre saisie",
+						"Connexion", JOptionPane.INFORMATION_MESSAGE);
+			}
 		} else if(e.getSource() == exit) {
 			dispose();
 		}

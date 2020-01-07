@@ -18,8 +18,7 @@ public class TestInterface {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		//@SuppressWarnings("unused")
-		//Login l = new Login();
-		new MainAdminFrame();
+		new Login();
 	}
 
 }

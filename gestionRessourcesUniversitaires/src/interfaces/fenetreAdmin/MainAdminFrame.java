@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import interfaces.fenetreUtil.Fenetre;
+import interfaces.fenetreUtil.Login;
 import interfaces.utilitaire.Bouton;
 
 /**
@@ -46,11 +47,14 @@ public class MainAdminFrame extends Fenetre{
 	private Bouton editUser = new Bouton("Modifier utilisateur");
 	private Bouton deleteUser = new Bouton("Supprimer utilisateur");
 	private Bouton retour = new Bouton("Retour");
+	private CreationGroupe nouv;
+	private String saisieGroupe = "";
+	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	
 	
 	public MainAdminFrame() {
 		super("Interface d'administration Serveur (GRU)");
-		setSize((int)(getCurrentScreenSize().getWidth()/1.5),(int)(getCurrentScreenSize().getHeight()/1.5));
-
+		setSize((int)(getCurrentScreenSize().getWidth()),(int)(getCurrentScreenSize().getHeight()));
 		positionnerCentre();
 		initLeft();
 		initMiddle();
@@ -66,18 +70,29 @@ public class MainAdminFrame extends Fenetre{
 			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe ?",
 					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		} else if(e.getSource() == editGroup) {
+			System.out.println("Pas encore prêt");
 		} else if(e.getSource() == deleteUser) {
-
 			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer l'utilisateur ?",
 					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		}else if(e.getSource() == creerUser) {
+			new CreationUser();
+		}else if(e.getSource() == retour) {
+			dispose();
+			new Login();
+		}else if(e.getSource() == creerGroup) {
+			nouv = new CreationGroupe(this);
+		}else if(e.getSource() == nouv.getValider()) {
+			saisieGroupe = nouv.getSaisie();
+			nouv.dispose();
+			listGroup.add(saisieGroupe);
+			listGroupe.setViewportView(groupes);
 		}
 	}
 	
 	public void initLeft() {
 		JPanel bas = new JPanel();
 		JPanel haut = new JPanel();
-		JScrollPane mid = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		haut.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
+				haut.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
 		haut.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
 		haut.setBackground(Color.LIGHT_GRAY);
 		bas.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
@@ -94,8 +109,8 @@ public class MainAdminFrame extends Fenetre{
 		for(int i = 0; i < 6; i++) {
 			listGroup.add("Groupe TD A"+(i+1));
 		}
-		mid.setBorder(BorderFactory.createLineBorder(Color.black, 3));
-		left.add(mid, BorderLayout.CENTER);
+		listGroupe.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+		left.add(listGroupe, BorderLayout.CENTER);
 	}
 
 	public void initMiddle() {
@@ -130,11 +145,14 @@ public class MainAdminFrame extends Fenetre{
 		right.add(new JLabel());
 		right.add(new JLabel());
 		right.add(new JLabel());
+		creerUser.addActionListener(this);
+		creerGroup.addActionListener(this);
 		right.add(creerUser);
 		right.add(creerGroup);
 		right.add(addToGroup);
 		right.add(new JLabel());
 		right.add(new JLabel());
+		retour.addActionListener(this);
 		right.add(retour);
 		right.add(new JLabel());
 	}

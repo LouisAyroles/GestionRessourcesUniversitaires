@@ -7,7 +7,6 @@ public abstract class Utilisateur implements Serializable {
 	private String prenom;
 	private String username;
 	private String password;
-	private int idUser = 0;
 	private TypeUtilisateur type;
 	
 	public Utilisateur(String nom, String prenom, String username, String password, TypeUtilisateur type) {
@@ -20,7 +19,7 @@ public abstract class Utilisateur implements Serializable {
 	public boolean equals(Object o) {
 		if (o instanceof Utilisateur) {
 			Utilisateur u = (Utilisateur) o;
-			return u.getIdUser() == this.idUser;
+			return u.getUsername() == this.username;
 		}
 		return false;
 	}
@@ -30,9 +29,6 @@ public abstract class Utilisateur implements Serializable {
 		return nom + " " + prenom;
 	}
 
-	public int getIdUser() {
-		return idUser;
-	}
 	public String getNom() {
 		return nom;
 	}

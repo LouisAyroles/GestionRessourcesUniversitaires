@@ -129,7 +129,6 @@ public class NouveauTicket extends Fenetre {
 		container.setLayout(new GridLayout(2,1));
 		container.add(top);
 		container.add(saisieMessage);
-		setContentPane(container);
 	}
 	
 	@Override

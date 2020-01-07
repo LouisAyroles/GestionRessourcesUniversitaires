@@ -39,7 +39,6 @@ public class MainFrame extends Fenetre{
 		initfocus();
 		initFenetre();
 		initContainer();
-		setContentPane(container);
 		initMenuBar();
 		setJMenuBar(barreMenu);
 		positionnerCentre();

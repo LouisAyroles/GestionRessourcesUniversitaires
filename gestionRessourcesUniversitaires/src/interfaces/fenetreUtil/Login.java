@@ -54,6 +54,7 @@ public class Login extends Fenetre{
 		setResizable(false);
 		setVisible(true);
 	}
+	
 	@Override
 	public void initContainer() {
 		// TODO Auto-generated method stub
@@ -82,7 +83,6 @@ public class Login extends Fenetre{
 		container.add(new JPanel());
 		container.add(bot);
 		container.add(new JPanel());
-		setContentPane(container);
 	}
 
 	public void initBot() {

@@ -15,6 +15,7 @@ public abstract class Utilisateur implements Serializable {
 		this.prenom = prenom;
 		this.username = username;
 		this.type = type;
+		this.password = password;
 	}
 	
 	public boolean equals(Object o) {
@@ -33,15 +34,19 @@ public abstract class Utilisateur implements Serializable {
 	public String getNom() {
 		return nom;
 	}
+	
 	public String getPrenom() {
 		return prenom;
 	}
+	
 	public String getPassword() {
 		return password;
 	}
+	
 	public String getUsername() {
 		return username;
 	}
+	
 	public TypeUtilisateur getType() {
 		return type;
 	}

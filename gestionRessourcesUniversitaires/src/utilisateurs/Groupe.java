@@ -55,4 +55,8 @@ public class Groupe implements Serializable{
 	public int getIdGroupe() {
 		return idGroupe;
 	}
+	
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
 }

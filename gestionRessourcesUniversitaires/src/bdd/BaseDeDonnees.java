@@ -19,7 +19,7 @@ import utilisateurs.Utilisateur;
 
 public class BaseDeDonnees implements Serializable {
 	
-	private static String urlBDD = "jdbc:mysql://localhost:3306/projetl3?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
+	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
 	private static String usernameBDD = "root";
 	private static String mdpBDD = "caca";
 	private static Connection connexion = null;
@@ -120,7 +120,7 @@ public class BaseDeDonnees implements Serializable {
 	 ********************************/
 	
 	public Utilisateur usernameVersUtilisateur(String login) throws BaseDeDonneesException {
-			String requete = "SELECT * FROM UTILISATEUR WHERE LOGINUSER = \"" + login + "\"";
+			String requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login + "'";
 			ResultSet utilisateur = requeteExecuteQuerie(requete);
 
 			try {
@@ -131,6 +131,7 @@ public class BaseDeDonnees implements Serializable {
 					String nom = utilisateur.getString("nomUser");
 					String prenom = utilisateur.getString("prenomUser");
 					String type = utilisateur.getString("typeUser");
+					
 					switch(type) {
 						case "ETUDIANT":
 							return new Etudiant(nom, prenom, loginUser, password);
@@ -149,7 +150,7 @@ public class BaseDeDonnees implements Serializable {
 					}
 				}//End if
 				else {
-					System.out.println("Aucun résultat");
+					return null;
 				}
 			} //End try
 			catch (SQLException e) {
@@ -159,8 +160,10 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	
-	public int createUser(Utilisateur user) {
-		String requete = "INSERT INTO UTILISATEUR VALUES (";
+	public int createUser(Utilisateur user) throws BaseDeDonneesException {
+		if(usernameVersUtilisateur(user.getUsername()) != null)
+			return -1;
+		String requete = "INSERT INTO Utilisateur VALUES (";
 		requete += "'" + user.getUsername() + "',";
 		requete += "'" + user.getPassword() + "',";
 		requete += "'" + user.getNom() + "',";
@@ -172,24 +175,24 @@ public class BaseDeDonnees implements Serializable {
 	
 	public int deleteUser(String login) {
 		//Récupérer tous les groupes et supprimer dans appartenir
-		String requete = "DELETE FROM UTILISATEUR WHERE loginUser = '" + login + "'";
+		String requete = "DELETE FROM Utilisateur WHERE loginUser = '" + login + "'";
 		return requeteExecuteUpdate(requete);
 	}
 	
 	//Modifier un utilisateur. Ca remplace tous les champs d'un user par défaut
 	public int modifyUser(Utilisateur user) {
-			String requete = "UPDATE UTILISATEUR SET ";
-			requete += "loginUser = '" + user.getUsername() + "',";
-			requete += "passwordUser = '" + user.getPassword() + ", ";
+			String requete = "UPDATE Utilisateur SET ";
+			requete += "loginUser = '" + user.getUsername() + "', ";
+			requete += "passwordUser = '" + user.getPassword() + "', ";
 			requete += "nomUser = '" + user.getNom() + "', ";
 			requete += "prenomUser = '" + user.getPrenom() + "',";
-			requete += "typeUser = '" + user.getType() +"'";
+			requete += "typeUser = '" + user.getType() +"' ";
 			requete += "WHERE loginUser = '" + user.getUsername() + "'";
 		return requeteExecuteUpdate(requete);
 	}
 	
 	public int connexion(String login, String password) {
-		String requete = "SELECT * FROM UTILISATEUR";
+		String requete = "SELECT * FROM Utilisateur";
 		requete += " WHERE loginUser = '" + login + "'";
 		requete += " AND passwordUser = '" + password +"'";
 		ResultSet result = requeteExecuteQuerie(requete);
@@ -208,14 +211,14 @@ public class BaseDeDonnees implements Serializable {
 	
 	public List<Groupe> getGroupsOfUser(Utilisateur user){
 		String login = user.getUsername();
-		String requete = "SELECT * FROM APPARTENIR WHERE loginUser = '" + login +"'";
+		String requete = "SELECT * FROM Appartenir WHERE loginUser = '" + login +"'";
 		ResultSet groupeId = requeteExecuteQuerie(requete);
 		List<Groupe> listeReturn = new ArrayList<>();
 		
 		try {
 			while(groupeId.next()) {
 				int id = groupeId.getInt("idGroupe");
-				requete = "SELECT * FROM GROUPEUSER WHERE idGroupe = " + id;
+				requete = "SELECT * FROM GroupeUser WHERE idGroupe = " + id;
 				ResultSet groupe = requeteExecuteQuerie(requete);
 				
 				if(groupe.next()) {
@@ -234,7 +237,7 @@ public class BaseDeDonnees implements Serializable {
 	public int deleteUserFromGroup(Utilisateur user, Groupe group) {//Supprimer un user d'un groupe
 		int idGroupe = group.getIdGroupe();
 		String login = user.getUsername();
-		String requete = "DELETE FROM APPARTENIR WHERE ";
+		String requete = "DELETE FROM Appartenir WHERE ";
 		requete += "loginUser = '" + login + "' ";
 		requete += "AND idGroupe = " + idGroupe;
 		
@@ -248,13 +251,13 @@ public class BaseDeDonnees implements Serializable {
 	 ********************************/
 	
 	public Groupe createGroup(String nom) throws BaseDeDonneesException {
-		String requete = "INSERT INTO GROUPEUSER(nomGroupe) VALUES('" + nom +"')";
+		String requete = "INSERT INTO GroupeUser(nomGroupe) VALUES('" + nom +"')";
 		int res = requeteExecuteUpdate(requete);
 		
 		if(res < 0)
 			throw new BaseDeDonneesException("Erreur création groupe");
 		
-		requete = "SELECT * FROM GROUPEUSER WHERE nomGroupe = '" + nom + "' ORDER BY 'idGroupe' DESC";
+		requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "' ORDER BY 'idGroupe' DESC";
 		ResultSet result = requeteExecuteQuerie(requete);
 		
 		try {
@@ -275,19 +278,19 @@ public class BaseDeDonnees implements Serializable {
 		/* Todo
 		 * Supprimer tout ce qui est en lien ?
 		 */
-		String requete = "DELETE FROM GROUPEUSER WHERE idGroupe = " + groupe.getIdGroupe() + " AND nomGroupe = '" + groupe.getNom() + "'";
+		String requete = "DELETE FROM GroupeUser WHERE idGroupe = " + groupe.getIdGroupe() + " AND nomGroupe = '" + groupe.getNom() + "'";
 		return requeteExecuteUpdate(requete);
 	}
 		
 	public int modifyGroup(Groupe groupe) {
-		String requete = "UPDATE GROUPEUSER SET ";
+		String requete = "UPDATE GroupeUser SET ";
 		requete += "nomGroupe = '" + groupe.getNom() + "' ";
 		requete += "WHERE idGroupe = '" + groupe.getIdGroupe() +"'";
 		return requeteExecuteUpdate(requete);
 	}
 	
 	public int addUserToGroup(Groupe groupe, Utilisateur user) {
-		String requete ="INSERT INTO APPARTENIR VALUES(";
+		String requete ="INSERT INTO Appartenir VALUES(";
 		requete += "'" + user.getUsername() + "', ";
 		requete += groupe.getIdGroupe();
 		requete += ")";
@@ -298,7 +301,7 @@ public class BaseDeDonnees implements Serializable {
 		
 		//Récupération de tous les Users qui correspondent au groupe
 		int id = groupe.getIdGroupe();
-		String requete = "SELECT * FROM APPARTENIR WHERE idGroupe =" + id;
+		String requete = "SELECT * FROM Appartenir WHERE idGroupe =" + id;
 		ResultSet loginUsers = requeteExecuteQuerie(requete);
 		List<Utilisateur> listeReturn = new ArrayList<Utilisateur>();
 		
@@ -310,7 +313,7 @@ public class BaseDeDonnees implements Serializable {
 				String login = loginUsers.getString("loginUser");
 				
 				//Récupération de l'user en cours
-				requete = "SELECT * FROM UTILISATEUR WHERE loginUser = '" + login +"'";
+				requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login +"'";
 				ResultSet currentUser = requeteExecuteQuerie(requete);
 				
 				if(currentUser.next()) {
@@ -355,7 +358,7 @@ public class BaseDeDonnees implements Serializable {
 	public Message creerMessage(Message message) throws BaseDeDonneesException {
 		
 		//Insert dans la table Message
-		String requete = "INSERT INTO MESSAGE(corpsMessage, dateMessage, loginUser) VALUES(";
+		String requete = "INSERT INTO Message(corpsMessage, dateMessage, loginUser) VALUES(";
 		requete += "'" + message.getMessage() + "', ";
 		requete += message.getDate().getTime() + ", ";
 		requete += "'" + message.getAuteur().getUsername() +"'";
@@ -366,7 +369,7 @@ public class BaseDeDonnees implements Serializable {
 			throw new BaseDeDonneesException("Erreur creer message");
 		
 		//On récupère l'id pour renvoyer le Message correspondant
-		requete = "SELECT * FROM MESSAGE WHERE ";
+		requete = "SELECT * FROM Message WHERE ";
 		requete += "corpsMessage = '" + message.getMessage() + "' ";
 		requete += "AND dateMessage = " + message.getDate().getTime() + " ";
 		requete += "AND loginUser = '" + message.getAuteur().getUsername() + "' ";
@@ -433,8 +436,8 @@ public class BaseDeDonnees implements Serializable {
 	/*TODO
 	 * Supprimer groupe : supprimer appartenir aussi
 	 * Supprimer utilisateur : supprimer appartenir
-	 * Modifier message ?
 	 * Méthode supprimer message d'un user
-	 * Supprimer message dans "envoyer"
+	 * Récupérer tous les users de la BDD
+	 * Récupérer tous les groupes de la BDD
 	 */
 }

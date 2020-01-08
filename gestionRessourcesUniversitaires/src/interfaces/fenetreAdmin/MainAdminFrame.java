@@ -35,6 +35,7 @@ import utilisateurs.Utilisateur;
 public class MainAdminFrame extends Fenetre{
 
 	private BaseDeDonnees bdd;
+	private String editionEnCours;
 	private JOptionPane effaceDemande = new JOptionPane();
 	private JPanel left = new JPanel();
 	private JPanel middle = new JPanel();
@@ -48,13 +49,13 @@ public class MainAdminFrame extends Fenetre{
 	private Bouton creerUser = new Bouton("Créer Utilisateur");
 	private Bouton creerGroup = new Bouton("Créer Groupe");
 	private Bouton addToGroup = new Bouton("Ajouter à un groupe");
-	private Bouton editGroup = new Bouton("Modifier groupe");
 	private Bouton deleteGroup = new Bouton("Supprimer groupe");
 	private Bouton editUser = new Bouton("Modifier utilisateur");
 	private Bouton deleteUser = new Bouton("Supprimer utilisateur");
 	private Bouton retour = new Bouton("Retour");
 	private CreationGroupe nouv;
 	private CreationUser nouvUser;
+	private ModifUser editUsers;
 	private String saisieGroupe = "";
 	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private JScrollPane midUser = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -107,8 +108,38 @@ public class MainAdminFrame extends Fenetre{
 			} else {
 				JOptionPane.showMessageDialog(this, "Veuillez sélectionner un groupe");
 			}
-		} else if(e.getSource() == editGroup) {
-			System.out.println("Pas encore prêt");
+		} else if(e.getSource() == editUser) {
+			Utilisateur modifie = null;
+			for(Utilisateur u : arrayUser) {
+				if(u.toString().equals(users.getSelectedValue())) {
+					modifie = u;
+				}
+			}
+			editionEnCours = users.getSelectedValue();
+			listUser.remove(users.getSelectedValue());
+			if(modifie != null){
+				editUsers = new ModifUser(this, modifie);
+			}
+		} else if(editUsers != null && e.getSource() == editUsers.getValider()) {
+			Utilisateur userModif = editUsers.getUtilisateurSaisi();
+			editUsers.dispose();
+			try {
+				if(bdd.modifyUser(userModif) == -1) {
+					JOptionPane.showMessageDialog(this, "La modification a échoué.\n Erreur de base de données");
+				} else {
+					listUser.add(userModif.toString());
+					midUser.setViewportView(users);
+					JOptionPane.showMessageDialog(this, "Utilisateur modifié avec succès.");
+				}
+			} catch(Exception ex) {
+				JOptionPane.showMessageDialog(this, "La modification a échoué.\n Erreur de saisie");
+			}
+			refresh();
+		}else if(editUsers != null && e.getSource() == editUsers.getRetour()) {
+			listUser.add(editionEnCours);
+			midUser.setViewportView(users);
+			editUsers.dispose();
+			refresh();
 		} else if(e.getSource() == deleteUser) {
 			Utilisateur efface = null;
 			String userErase = users.getSelectedValue();
@@ -117,7 +148,6 @@ public class MainAdminFrame extends Fenetre{
 						"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if(option == JOptionPane.OK_OPTION) {
 					for(Utilisateur u : arrayUser) {
-						System.out.println("Test u.toString() = " + u.toString() + " et userErase = " + userErase);
 						if(u.toString().equals(userErase)) {
 							efface = u;
 						}
@@ -185,11 +215,9 @@ public class MainAdminFrame extends Fenetre{
 		left.setLayout(new BorderLayout());
 		haut.add(groupe);
 		left.add(haut, BorderLayout.NORTH);
-		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 30,40));
-		bas.add(editGroup);
+		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 0,40));
 		bas.add(deleteGroup);
 		deleteGroup.addActionListener(this);
-		editGroup.addActionListener(this);
 		groupes.setSelectedIndex(0);
 		left.add(bas, BorderLayout.SOUTH);
 		for(Groupe group : bdd.getAllGroup()) {

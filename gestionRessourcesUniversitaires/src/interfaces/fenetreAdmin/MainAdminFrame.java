@@ -53,12 +53,21 @@ public class MainAdminFrame extends Fenetre{
 	private Bouton editUser = new Bouton("Modifier utilisateur");
 	private Bouton deleteUser = new Bouton("Supprimer utilisateur");
 	private Bouton retour = new Bouton("Retour");
+	private Bouton voirGroupe = new Bouton("Voir groupe");
+	private Bouton enleverUser = new Bouton("Enlever Utilisateur");
 	private CreationGroupe nouv;
 	private CreationUser nouvUser;
 	private ModifUser editUsers;
 	private String saisieGroupe = "";
 	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private JScrollPane midUser = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	
+	
+	private Vector<String> listUserGroup = new Vector<>();
+	private JList<String> userGroup = new JList<>(listUserGroup);
+	private JScrollPane listUserGroupe = new JScrollPane(userGroup, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	
+	
 	private List<Groupe> arrayGroup = new ArrayList<>();
 	private List<Utilisateur> arrayUser = new ArrayList<>();
 	private Utilisateur connected;
@@ -73,6 +82,8 @@ public class MainAdminFrame extends Fenetre{
 				this.connected = u;
 			}
 		}
+		addToGroup.addActionListener(this);
+		enleverUser.addActionListener(this);
 		setSize((int)(getCurrentScreenSize().getWidth()),(int)(getCurrentScreenSize().getHeight()));
 		positionnerCentre();
 		initLeft();
@@ -115,9 +126,9 @@ public class MainAdminFrame extends Fenetre{
 					modifie = u;
 				}
 			}
-			editionEnCours = users.getSelectedValue();
-			listUser.remove(users.getSelectedValue());
 			if(modifie != null){
+				editionEnCours = users.getSelectedValue();
+				listUser.remove(users.getSelectedValue());
 				editUsers = new ModifUser(this, modifie);
 			}
 		} else if(editUsers != null && e.getSource() == editUsers.getValider()) {
@@ -125,6 +136,8 @@ public class MainAdminFrame extends Fenetre{
 			editUsers.dispose();
 			try {
 				if(bdd.modifyUser(userModif) == -1) {
+					listUser.add(editionEnCours);
+					midUser.setViewportView(users);
 					JOptionPane.showMessageDialog(this, "La modification a échoué.\n Erreur de base de données");
 				} else {
 					listUser.add(userModif.toString());
@@ -132,6 +145,8 @@ public class MainAdminFrame extends Fenetre{
 					JOptionPane.showMessageDialog(this, "Utilisateur modifié avec succès.");
 				}
 			} catch(Exception ex) {
+				listUser.add(editionEnCours);
+				midUser.setViewportView(users);
 				JOptionPane.showMessageDialog(this, "La modification a échoué.\n Erreur de saisie");
 			}
 			refresh();
@@ -201,12 +216,78 @@ public class MainAdminFrame extends Fenetre{
 				JOptionPane.showMessageDialog(this, "La création a échoué.\n Erreur de saisie");
 			}
 			refresh();
+		} else if(e.getSource() == voirGroupe) {
+			Groupe groupSelected = null;
+			listUserGroup.removeAllElements();
+			for(Groupe g : arrayGroup) {
+				if(g.toString().equals(groupes.getSelectedValue())) {
+					groupSelected = g;
+				}
+			}
+			if(groupSelected != null) {
+				for(Utilisateur u : bdd.getUsersOfGroup(groupSelected)) {
+					listUserGroup.add(u.toString());
+				}
+				listUserGroupe.setViewportView(userGroup);
+			}
+			refresh();
+		} else if(e.getSource() == enleverUser) {
+			Groupe groupSelected = null;
+			Utilisateur userSelected = null;
+			for(Groupe g : arrayGroup) {
+				if(g.toString().equals(groupes.getSelectedValue())) {
+					groupSelected = g;
+				}
+			}
+			for(Utilisateur u : arrayUser) {
+				if(u.toString().equals(userGroup.getSelectedValue())) {
+					userSelected = u;
+				}
+			}
+			if(groupSelected != null && userSelected != null) {
+				if(bdd.deleteUserFromGroup(userSelected, groupSelected) != -1) {
+					JOptionPane.showMessageDialog(this, "Utilisateur "+ userSelected.getNom() + " "+ 
+							userSelected.getPrenom() + " supprimé du groupe " + groupSelected.getNom());
+				} else {
+					JOptionPane.showMessageDialog(this, "Impossible d'enlever l'utilisateur du groupe.");
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Veuillez sélectionner un groupe et un utilisateur.");
+			}
+			listUserGroup.remove(userSelected.toString());
+			listUserGroupe.setViewportView(userGroup);
+		} else if(e.getSource() == addToGroup) {
+			Groupe groupSelected = null;
+			Utilisateur userSelected = null;
+			for(Groupe g : arrayGroup) {
+				if(g.toString().equals(groupes.getSelectedValue())) {
+					groupSelected = g;
+				}
+			}
+			for(Utilisateur u : arrayUser) {
+				if(u.toString().equals(users.getSelectedValue())) {
+					userSelected = u;
+				}
+			}
+			if(groupSelected != null && userSelected != null) {
+				if(bdd.addUserToGroup(groupSelected, userSelected) != -1) {
+					JOptionPane.showMessageDialog(this, "Utilisateur "+ userSelected.getNom() + " "+ 
+				userSelected.getPrenom() + " ajouté au groupe " + groupSelected.getNom());					
+				} else {
+					JOptionPane.showMessageDialog(this, "Impossible d'ajouter l'utilisateur du groupe.");
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Veuillez sélectionner un groupe et un utilisateur.");
+			}
+			refresh();
 		}
 	}
 	
 	public void initLeft() {
 		JPanel bas = new JPanel();
 		JPanel haut = new JPanel();
+		JPanel mid = new JPanel();
+		GridLayout gl = new GridLayout(2,1);
 				haut.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
 		haut.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
 		haut.setBackground(Color.LIGHT_GRAY);
@@ -215,16 +296,24 @@ public class MainAdminFrame extends Fenetre{
 		left.setLayout(new BorderLayout());
 		haut.add(groupe);
 		left.add(haut, BorderLayout.NORTH);
-		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 0,40));
+		bas.setLayout(new FlowLayout(FlowLayout.CENTER, 10,40));
 		bas.add(deleteGroup);
+		bas.add(enleverUser);
+		bas.add(voirGroupe);
 		deleteGroup.addActionListener(this);
+		voirGroupe.addActionListener(this);
 		groupes.setSelectedIndex(0);
 		left.add(bas, BorderLayout.SOUTH);
 		for(Groupe group : bdd.getAllGroup()) {
 			listGroup.add(group.toString());
 		}
 		listGroupe.setBorder(BorderFactory.createLineBorder(Color.black, 3));
-		left.add(listGroupe, BorderLayout.CENTER);
+		gl.setVgap(20);
+		mid.setLayout(gl);
+		listUserGroupe.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+		mid.add(listGroupe);
+		mid.add(listUserGroupe);
+		left.add(mid, BorderLayout.CENTER);
 	}
 
 	public void initMiddle() {

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -17,8 +18,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import bdd.BaseDeDonnees;
+import bdd.BaseDeDonneesException;
+import interfaces.utilitaire.BoutonImage;
 import messages.Discussion;
 import utilisateurs.Groupe;
+import utilisateurs.Utilisateur;
 
 public class MainFrame extends Fenetre{
 
@@ -37,13 +41,19 @@ public class MainFrame extends Fenetre{
 	private ItemMenu deconnexion = new ItemMenu("Déconnexion");
 	private JMenu menuFichier = new JMenu("Fichier");
 	private ItemMenu itemTicket = new ItemMenu("Ticket"); 
+	private Utilisateur connected;
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
-	public MainFrame(String title, BaseDeDonnees bdd) {
+	public MainFrame(String title, BaseDeDonnees bdd, String connected) {
 		super(title);
 		this.bdd = bdd;
 		this.nbConversations = nbConversations;
+		for(Utilisateur u : bdd.getAllUser()) {
+			if(u.getUsername().equalsIgnoreCase(connected)) {
+				this.connected = u;
+			}
+		}
 		setSize((int)getCurrentScreenSize().getWidth(),(int)getCurrentScreenSize().getHeight());
 		initConversations();
 		initfocus();
@@ -94,18 +104,17 @@ public class MainFrame extends Fenetre{
 		fenetre.setRightComponent(right);
 		initRight();
 		fenetre.setEnabled(false);
-		fenetre.setDividerLocation((int)getCurrentScreenSize().getWidth()/4);
+		fenetre.setResizeWeight(0.2);
 		fenetre.setDividerSize(4);
 	}
 	
 	public void initRight() {
 		right.setBackground(Color.BLUE);
 		right.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		//Proportions non gardées lorsqu'on redimensionne la fenêtre. A voir !
-		right.setDividerLocation((int)getCurrentScreenSize().getHeight()*3/4);
+		right.setResizeWeight(0.8);
 		right.setDividerSize(4);
 		right.setTopComponent(focus);
-		right.setBottomComponent(new JTextArea(5,10));
+		initbottomright();
 	}
 	
 	public void initfocus() {
@@ -114,21 +123,57 @@ public class MainFrame extends Fenetre{
 		
 	}
 	
+	public void initbottomright() {
+		JPanel bottomright = new JPanel();
+		JPanel buttonHolder = new JPanel();
+		buttonHolder.setLayout(new GridLayout(7,1));
+		bottomright.setLayout(new BorderLayout());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new JPanel());
+		buttonHolder.add(new BoutonImage("img/fleche.jpg"));
+		bottomright.add(buttonHolder,BorderLayout.EAST);
+		bottomright.add(new JTextArea(), BorderLayout.CENTER);
+		right.setBottomComponent(bottomright);
+	}
+	
 	public void initConversations() {
-		conversations.setLayout(new GridLayout(8,1));
-		conversations.setBackground(Color.MAGENTA);
+		List<Groupe> groupes = new ArrayList<>();
+		List<Discussion> discussions = new ArrayList<>();
+		groupes = bdd.getAllGroup();
+		for (Groupe groupe2 : groupes) {
+			discussions.addAll(bdd.getFilOfGroupe(groupe2));
+		}
+		conversations.add(filDiscussion(connected.getUsername()));
+		conversations.setBackground(Color.LIGHT_GRAY);
 	}
 	
      
      
-  public JTree filDiscussion(List<Groupe> groupes, List<Discussion> discussions){
-          
+  public JTree filDiscussion(String username){
+         
+	  	Utilisateur u = null;
+		try {
+			u = bdd.usernameVersUtilisateur(username);
+		} catch (BaseDeDonneesException e) {
+			e.printStackTrace();
+		}
+		
+	  	List<Discussion> discussions = new ArrayList<>();
+	  	List<Groupe> groupes = bdd.getGroupsOfUser(u);
+		for (Groupe groupe2 : groupes) {
+			discussions.addAll(bdd.getFilOfGroupe(groupe2));
+		}
+	  	
         int i = 0, j=0;
         DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Mes Groupes");
         DefaultMutableTreeNode treeGroupe[] = new DefaultMutableTreeNode[50];
         DefaultMutableTreeNode treeD[] = new DefaultMutableTreeNode[50];
         
-        for (Groupe groupe : groupes) {
+        for (Groupe groupe : bdd.getGroupsOfUser(u)) {
             treeGroupe[i] = new DefaultMutableTreeNode(groupe);
             racine.add(treeGroupe[i]);
             i++;
@@ -156,4 +201,3 @@ public class MainFrame extends Fenetre{
         return new JTree(racine);
   }  
 }
-

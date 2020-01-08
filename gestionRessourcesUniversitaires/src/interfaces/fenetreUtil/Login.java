@@ -116,7 +116,7 @@ public class Login extends Fenetre{
 				if(utilisateurSaisie.getText().substring(0, 3).equals("adm")) {
 					new MainAdminFrame(bdd, utilisateurSaisie.getText());
 				}else {
-					new MainFrame("GRU", bdd);
+					new MainFrame("GRU", bdd, utilisateurSaisie.getText());
 				}
 				dispose();
 			} else {

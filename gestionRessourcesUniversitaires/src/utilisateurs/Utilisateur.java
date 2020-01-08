@@ -21,7 +21,7 @@ public abstract class Utilisateur implements Serializable {
 	public boolean equals(Object o) {
 		if (o instanceof Utilisateur) {
 			Utilisateur u = (Utilisateur) o;
-			return u.getUsername() == this.username;
+			return u.getUsername().equals(this.username);
 		}
 		return false;
 	}

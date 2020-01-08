@@ -173,10 +173,14 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public int deleteUser(String login) {
-		//R�cup�rer tous les groupes et supprimer dans appartenir
-		String requete = "DELETE FROM Utilisateur WHERE loginUser = '" + login + "'";
-		return requeteExecuteUpdate(requete);
-	}
+        //R�cup�rer tous les groupes et supprimer dans appartenir
+        String requete = "DELETE FROM Appartenir WHERE loginUser ='" + login + "';";
+        requeteExecuteUpdate(requete);
+        requete = "DELETE FROM Message WHERE loginUser ='" + login + "';";
+        requeteExecuteUpdate(requete);
+        requete = "DELETE FROM Utilisateur WHERE loginUser = '" + login + "'";
+        return requeteExecuteUpdate(requete);
+    }
 	
 	//Modifier un utilisateur. Ca remplace tous les champs d'un user par d�faut
 	public int modifyUser(Utilisateur user) {

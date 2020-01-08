@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+
 import bdd.BaseDeDonnees;
 import interfaces.fenetreUtil.Fenetre;
 import interfaces.fenetreUtil.Login;
@@ -58,12 +59,18 @@ public class MainAdminFrame extends Fenetre{
 	private JScrollPane midUser = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private List<Groupe> arrayGroup = new ArrayList<>();
 	private List<Utilisateur> arrayUser = new ArrayList<>();
+	private Utilisateur connected;
 	
 	
-	public MainAdminFrame(BaseDeDonnees bdd) {
+	public MainAdminFrame(BaseDeDonnees bdd, String connected) {
 		super("Interface d'administration Serveur (GRU)");
 		this.bdd = bdd;
 		refresh();
+		for(Utilisateur u : arrayUser) {
+			if(u.getUsername().equalsIgnoreCase(connected)) {
+				this.connected = u;
+			}
+		}
 		setSize((int)(getCurrentScreenSize().getWidth()),(int)(getCurrentScreenSize().getHeight()));
 		positionnerCentre();
 		initLeft();
@@ -87,14 +94,14 @@ public class MainAdminFrame extends Fenetre{
 			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe "+ groupeErase+ "?",
 					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 			if(option == JOptionPane.OK_OPTION) {
-				listGroup.remove(groupeErase);
-				}
 				if(bdd.deleteGroup(bdd.getGroup(groupeErase)) == -1) {
 					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
 				} else {
 					JOptionPane.showMessageDialog(this, "Groupe " + groupeErase + " effacé.");
+					listGroup.remove(groupeErase);
 				}
 				listGroupe.setViewportView(groupes);
+			}
 		} else if(e.getSource() == editGroup) {
 			System.out.println("Pas encore prêt");
 		} else if(e.getSource() == deleteUser) {
@@ -112,9 +119,9 @@ public class MainAdminFrame extends Fenetre{
 					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
 				} else {
 					JOptionPane.showMessageDialog(this, "Utilisateur " + userErase + " effacé.");
+					listUser.remove(userErase);
+					midUser.setViewportView(users);
 				}
-				listUser.remove(userErase);
-				midUser.setViewportView(users);
 			}
 		}else if(e.getSource() == creerUser) {
 			new CreationUser();
@@ -180,7 +187,8 @@ public class MainAdminFrame extends Fenetre{
 		users.setSelectedIndex(0);
 		middle.add(bas, BorderLayout.SOUTH);
 		for(Utilisateur user : bdd.getAllUser()) {
-			listUser.add(user.toString());
+			if(!user.equals(connected))
+				listUser.add(user.toString());
 		}
 		midUser.setBorder(BorderFactory.createLineBorder(Color.black, 3));
 		middle.add(midUser, BorderLayout.CENTER);

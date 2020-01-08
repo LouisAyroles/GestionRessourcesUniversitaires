@@ -112,10 +112,9 @@ public class Login extends Fenetre{
 		if(e.getSource() == login) {
 			BaseDeDonnees bdd = new BaseDeDonnees();
 			int connexion = bdd.connexion(utilisateurSaisie.getText(), new String(motDePasseSaisie.getPassword()));
-			System.out.println(utilisateurSaisie.getText() + " et " + motDePasseSaisie.getPassword().toString());
 			if (connexion == 1) {
 				if(utilisateurSaisie.getText().substring(0, 3).equals("adm")) {
-					new MainAdminFrame(bdd);
+					new MainAdminFrame(bdd, utilisateurSaisie.getText());
 				}else {
 					new MainFrame("GRU", bdd);
 				}

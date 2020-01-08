@@ -22,7 +22,7 @@ import utilisateurs.Utilisateur;
 
 public class BaseDeDonnees implements Serializable {
 	
-	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
+	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires";
 	private static String usernameBDD = "root";
 	private static String mdpBDD = "root";
 	private static Connection connexion = null;
@@ -620,6 +620,31 @@ public class BaseDeDonnees implements Serializable {
 		return requeteExecuteUpdate(requete);
 	}
 	
+	public int addMessageToFil(int idMessage, int idFil) {
+		String requete = "INSERT INTO Contenir VALUES(";
+		requete += idMessage + ", ";
+		requete += idFil;
+		requete += ")";
+		
+		return requeteExecuteUpdate(requete);
+	}
+	
+	public List<Message> getMessageOfFil(int id){
+		List<Message> listReturn = new ArrayList<>();
+		listReturn.add(getMessageById(id)); //On ajoute le message qui a créé le fil
+		String requete = "SELECT * FROM Contenir WHERE idFil = " + id;
+		ResultSet message = requeteExecuteQuerie(requete);
+		
+		try {
+			while(message.next()) {
+				listReturn.add(getMessageById(message.getInt("idMessage")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return listReturn;
+	}
+	
 	/********************************
 	 * 								*
 	 * 			Générique	 		*
@@ -662,10 +687,6 @@ public class BaseDeDonnees implements Serializable {
 	
 	
 	/*TODO
-	 * Supprimer groupe : supprimer appartenir aussi
-	 * Supprimer utilisateur : supprimer appartenir
-	 * Méthode supprimer message d'un user
-	 * Récupérer tous les users de la BDD
-	 * Récupérer tous les groupes de la BDD
+	 * ON DELETE CASCADE pour les clés étrangères
 	 */
 }

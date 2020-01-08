@@ -2,15 +2,26 @@ package interfaces.fenetreUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
@@ -21,6 +32,7 @@ import bdd.BaseDeDonnees;
 import bdd.BaseDeDonneesException;
 import interfaces.utilitaire.BoutonImage;
 import messages.Discussion;
+import messages.Message;
 import utilisateurs.Groupe;
 import utilisateurs.Utilisateur;
 
@@ -42,6 +54,7 @@ public class MainFrame extends Fenetre{
 	private JMenu menuFichier = new JMenu("Fichier");
 	private ItemMenu itemTicket = new ItemMenu("Ticket"); 
 	private Utilisateur connected;
+	private JTree arbo;
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
@@ -55,6 +68,7 @@ public class MainFrame extends Fenetre{
 			}
 		}
 		setSize((int)getCurrentScreenSize().getWidth(),(int)getCurrentScreenSize().getHeight());
+		arbo = filDiscussion(this.connected.getUsername());
 		initConversations();
 		initfocus();
 		initFenetre();
@@ -109,11 +123,18 @@ public class MainFrame extends Fenetre{
 	}
 	
 	public void initRight() {
+		JPanel jp = null;
+		try {
+			jp = ajoutJPanel(2);
+		} catch(Exception e) {
+			System.out.println("J'em bas les couilles frère.");
+		}
+		JScrollPane top = new JScrollPane(jp,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		right.setBackground(Color.BLUE);
 		right.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		right.setResizeWeight(0.8);
 		right.setDividerSize(4);
-		right.setTopComponent(focus);
+		right.setTopComponent(top);
 		initbottomright();
 	}
 	
@@ -142,7 +163,7 @@ public class MainFrame extends Fenetre{
 	
 	public void initConversations() {
 		conversations.setLayout(new BorderLayout());
-		conversations.add(filDiscussion(connected.getUsername()), BorderLayout.CENTER);
+		conversations.add(arbo, BorderLayout.CENTER);
 		conversations.setBackground(Color.LIGHT_GRAY);
 	}
 	
@@ -198,4 +219,48 @@ public class MainFrame extends Fenetre{
      
         return tree;
   }  
+  
+  	
+  	private JPanel ajoutJPanel(int id) throws BaseDeDonneesException, IOException {
+  		JPanel jp = new JPanel();
+  		jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
+  		List<Message> listeMsg = getMessageOfDiscussion(id);
+  		for(Message msg : listeMsg) {
+  			jp.add(boxDiscussion(msg));
+  		}
+  		return jp;
+  	}
+  	
+  	private Box boxDiscussion(Message m) throws IOException {
+  		Box box = new Box(BoxLayout.Y_AXIS);
+  		
+  		JLabel auteur = new JLabel(m.getAuteur().getNom() + " " + m.getAuteur().getPrenom() + " :");
+  		Font fontAuteur = new Font("Arial", Font.BOLD, 13);
+  		auteur.setFont(fontAuteur);
+  		
+  		JEditorPane corps = new JEditorPane();
+  		corps.setContentType("text/plain");	
+  		corps.setText(m.getMessage());
+  		corps.setEditable(false);
+  		corps.setBackground(auteur.getBackground());
+  		
+  		JLabel date = new JLabel(m.getDate().toString());
+  		Font fontDate = new Font("Arial", Font.ITALIC ,12);
+  		date.setFont(fontDate);
+  		
+  		//JLabel space = new JLabel(" ");
+  		//box.add(space);
+  		
+  		box.add(auteur);
+  		box.add(corps);
+  		box.add(date);
+  		box.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black));
+  		return box;
+  	}
+  	
+  	private List<Message> getMessageOfDiscussion(int id) throws BaseDeDonneesException {
+  		Discussion d = bdd.getFilById(id);
+  		return bdd.getMessageOfFil(d.getIdDiscussion());
+  	}
+  	
 }

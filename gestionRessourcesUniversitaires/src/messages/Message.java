@@ -36,25 +36,32 @@ public class Message implements Serializable {
 		this.date = date;
 	}
 
+	@Override
 	public String toString() {
-		return message;
+		return "Message [auteur=" + auteur + ", date=" + date + ", message=" + message + ", idMessage=" + idMessage
+				+ ", idDiscussion=" + idDiscussion + ", type=" + type + "]";
 	}
-	
+
 	public Utilisateur getAuteur() {
 		return auteur;
 	}
+	
 	public Date getDate() {
 		return date;
 	}
+	
 	public int getIdDiscussion() {
 		return idDiscussion;
 	}
+	
 	public String getMessage() {
 		return message;
 	}
+	
 	public int getIdMessage() {
 		return idMessage;
 	}
+	
 	public TypeMessage getType() {
 		return type;
 	}

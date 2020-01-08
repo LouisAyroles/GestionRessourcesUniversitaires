@@ -16,7 +16,7 @@ public class Test {
 		liste.add(enseignant);
 		liste.add(administratif);
 		liste.add(technicien);
-		Groupe groupe = new Groupe("Nouveau Groupe",1, liste);
+		Groupe groupe = new Groupe("Nouveau Groupe",liste);
 		for (Utilisateur u : groupe.getGroupe()) {
 			System.out.println(u);
 		}

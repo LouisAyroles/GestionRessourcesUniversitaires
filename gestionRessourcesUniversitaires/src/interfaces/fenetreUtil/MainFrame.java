@@ -104,7 +104,7 @@ public class MainFrame extends Fenetre{
 		fenetre.setRightComponent(right);
 		initRight();
 		fenetre.setEnabled(false);
-		fenetre.setResizeWeight(0.2);
+		fenetre.setResizeWeight(0.04);
 		fenetre.setDividerSize(4);
 	}
 	
@@ -141,13 +141,8 @@ public class MainFrame extends Fenetre{
 	}
 	
 	public void initConversations() {
-		List<Groupe> groupes = new ArrayList<>();
-		List<Discussion> discussions = new ArrayList<>();
-		groupes = bdd.getAllGroup();
-		for (Groupe groupe2 : groupes) {
-			discussions.addAll(bdd.getFilOfGroupe(groupe2));
-		}
-		conversations.add(filDiscussion(connected.getUsername()));
+		conversations.setLayout(new BorderLayout());
+		conversations.add(filDiscussion(connected.getUsername()), BorderLayout.CENTER);
 		conversations.setBackground(Color.LIGHT_GRAY);
 	}
 	
@@ -197,7 +192,10 @@ public class MainFrame extends Fenetre{
         renderer.setOpenIcon(null);
         renderer.setClosedIcon(null);
         renderer.setLeafIcon(null);
+        
+        JTree tree = new JTree(racine);
+        tree.setVisibleRowCount(10);
      
-        return new JTree(racine);
+        return tree;
   }  
 }

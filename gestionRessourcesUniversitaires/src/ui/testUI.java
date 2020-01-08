@@ -26,24 +26,23 @@ public class testUI {
 		JFrame frame = new JFrame("Test");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(400, 600);
-		
-		ajoutJPanel(frame, 1);
-
+	
+		frame.add(ajoutJPanel(1));
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 	}
 	
-	private static void ajoutJPanel(JFrame frame, int id) throws BaseDeDonneesException, IOException {
+	private static JScrollPane ajoutJPanel(int id) throws BaseDeDonneesException, IOException {
 		JPanel jp = new JPanel();
 		jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
 		List<Message> listeMsg = getMessageOfDiscussion(id);
 		for(Message msg : listeMsg) {
 			jp.add(boxDiscussion(msg));
 		}
-		frame.add(new JScrollPane(jp,
+		return new JScrollPane(jp,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 	
 	private static Box boxDiscussion(Message m) throws IOException {
@@ -80,6 +79,5 @@ public class testUI {
 	
 	public static void main(String[] args) throws BaseDeDonneesException, IOException {
 		fenPrincipale();
-
 	}
 }

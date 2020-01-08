@@ -49,9 +49,10 @@ public class TestBaseDeDonees {
 			System.out.println(myBDD.getDiscussionOfMessage(m.getIdMessage()));*/
 			//System.out.println(myBDD.getFilOfGroupe(g1));
 			
+			
 			Utilisateur u2 = myBDD.usernameVersUtilisateur("tcl41a");
 			Discussion d = myBDD.getFilById(1);
-			Message m2 = myBDD.creerMessage(new Message(u2, "Test message corps", new Date()));
+			Message m2 = myBDD.creerMessage(new Message(u2, "Pas de soucis, je vais intervenir !", new Date()));
 			myBDD.addMessageToFil(m2.getIdMessage(), d.getIdDiscussion());
 	}
 }

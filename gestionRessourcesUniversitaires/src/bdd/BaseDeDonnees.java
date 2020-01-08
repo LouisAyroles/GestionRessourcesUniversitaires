@@ -687,10 +687,6 @@ public class BaseDeDonnees implements Serializable {
 	
 	
 	/*TODO
-	 * Supprimer groupe : supprimer appartenir aussi
-	 * Supprimer utilisateur : supprimer appartenir
-	 * Méthode supprimer message d'un user
-	 * Récupérer tous les users de la BDD
-	 * Récupérer tous les groupes de la BDD
+	 * ON DELETE CASCADE pour les clés étrangères
 	 */
 }

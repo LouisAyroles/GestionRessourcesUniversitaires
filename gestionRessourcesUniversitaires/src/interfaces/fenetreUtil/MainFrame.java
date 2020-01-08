@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JMenu;
@@ -11,8 +12,13 @@ import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import bdd.BaseDeDonnees;
+import messages.Discussion;
+import utilisateurs.Groupe;
 
 public class MainFrame extends Fenetre{
 
@@ -112,5 +118,42 @@ public class MainFrame extends Fenetre{
 		conversations.setLayout(new GridLayout(8,1));
 		conversations.setBackground(Color.MAGENTA);
 	}
+	
+     
+     
+  public JTree filDiscussion(List<Groupe> groupes, List<Discussion> discussions){
+          
+        int i = 0, j=0;
+        DefaultMutableTreeNode racine = new DefaultMutableTreeNode("Mes Groupes");
+        DefaultMutableTreeNode treeGroupe[] = new DefaultMutableTreeNode[50];
+        DefaultMutableTreeNode treeD[] = new DefaultMutableTreeNode[50];
+        
+        for (Groupe groupe : groupes) {
+            treeGroupe[i] = new DefaultMutableTreeNode(groupe);
+            racine.add(treeGroupe[i]);
+            i++;
+        }
+        
+        i=0;
+        for (Discussion discussion : discussions) {
+            treeD[i] = new DefaultMutableTreeNode(discussion.getTitre());
+
+            j=0;
+            for (Groupe groupe : groupes) {
+                if (discussion.getGroupe().equals(groupe)) {
+                    treeGroupe[j].add(treeD[i]);
+                }
+                j++;
+            }
+            i++;
+        }
+        
+        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+        renderer.setOpenIcon(null);
+        renderer.setClosedIcon(null);
+        renderer.setLeafIcon(null);
+     
+        return new JTree(racine);
+  }  
 }
 

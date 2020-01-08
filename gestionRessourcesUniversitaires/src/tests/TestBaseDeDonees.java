@@ -12,7 +12,7 @@ import utilisateurs.Utilisateur;
 public class TestBaseDeDonees {
 	public static void main (String[] args) throws BaseDeDonneesException {
 			BaseDeDonnees myBDD = new BaseDeDonnees();
-			//myBDD.creationBDD();
+			myBDD.creationBDD();
 			
 			myBDD.createUser(new Etudiant("Leo","Etudiant","tdl41a","psswd"));
 			myBDD.createUser(new Technicien("Louis","Technicien","tcl41a","psswd"));

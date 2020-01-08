@@ -55,11 +55,15 @@ public class MainAdminFrame extends Fenetre{
 	private CreationGroupe nouv;
 	private String saisieGroupe = "";
 	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	private JScrollPane midUser = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	private List<Groupe> arrayGroup = new ArrayList<>();
+	private List<Utilisateur> arrayUser = new ArrayList<>();
 	
 	
 	public MainAdminFrame(BaseDeDonnees bdd) {
 		super("Interface d'administration Serveur (GRU)");
 		this.bdd = bdd;
+		refresh();
 		setSize((int)(getCurrentScreenSize().getWidth()),(int)(getCurrentScreenSize().getHeight()));
 		positionnerCentre();
 		initLeft();
@@ -68,18 +72,50 @@ public class MainAdminFrame extends Fenetre{
 		initContainer();
 		setVisible(true);
 	}
+	
+	public void refresh() {
+		arrayGroup = bdd.getAllGroup();
+		arrayUser = bdd.getAllUser();
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		int option;
 		if(e.getSource() == deleteGroup) {
-			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe ?",
+			String groupeErase = groupes.getSelectedValue();
+			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe "+ groupeErase+ "?",
 					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(option == JOptionPane.OK_OPTION) {
+				listGroup.remove(groupeErase);
+				}
+				if(bdd.deleteGroup(bdd.getGroup(groupeErase)) == -1) {
+					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
+				} else {
+					JOptionPane.showMessageDialog(this, "Groupe " + groupeErase + " effacé.");
+				}
+				listGroupe.setViewportView(groupes);
 		} else if(e.getSource() == editGroup) {
 			System.out.println("Pas encore prêt");
 		} else if(e.getSource() == deleteUser) {
-			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer l'utilisateur ?",
+			Utilisateur efface = null;
+			String userErase = users.getSelectedValue();
+			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer l'utilisateur "+ userErase + "?",
 					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+			if(option == JOptionPane.OK_OPTION) {
+				for(Utilisateur u : arrayUser) {
+					if(u.toString().equals(userErase)) {
+						efface = u;
+					}
+				}
+				if(bdd.deleteUser(efface.getUsername()) == -1) {
+					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
+				} else {
+					JOptionPane.showMessageDialog(this, "Utilisateur " + userErase + " effacé.");
+				}
+				listUser.remove(userErase);
+				midUser.setViewportView(users);
+			}
 		}else if(e.getSource() == creerUser) {
 			new CreationUser();
 		}else if(e.getSource() == retour) {
@@ -116,6 +152,7 @@ public class MainAdminFrame extends Fenetre{
 		bas.add(deleteGroup);
 		deleteGroup.addActionListener(this);
 		editGroup.addActionListener(this);
+		groupes.setSelectedIndex(0);
 		left.add(bas, BorderLayout.SOUTH);
 		for(Groupe group : bdd.getAllGroup()) {
 			listGroup.add(group.toString());
@@ -127,7 +164,6 @@ public class MainAdminFrame extends Fenetre{
 	public void initMiddle() {
 		JPanel bas = new JPanel();
 		JPanel haut = new JPanel();
-		JScrollPane mid = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		haut.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 40));
 		haut.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2, true));
 		haut.setBackground(Color.LIGHT_GRAY);
@@ -141,12 +177,13 @@ public class MainAdminFrame extends Fenetre{
 		bas.add(deleteUser);
 		deleteUser.addActionListener(this);
 		editUser.addActionListener(this);
+		users.setSelectedIndex(0);
 		middle.add(bas, BorderLayout.SOUTH);
 		for(Utilisateur user : bdd.getAllUser()) {
 			listUser.add(user.toString());
 		}
-		mid.setBorder(BorderFactory.createLineBorder(Color.black, 3));
-		middle.add(mid, BorderLayout.CENTER);
+		midUser.setBorder(BorderFactory.createLineBorder(Color.black, 3));
+		middle.add(midUser, BorderLayout.CENTER);
 	}
 	
 	public void initRight() {

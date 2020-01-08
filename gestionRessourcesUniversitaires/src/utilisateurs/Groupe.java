@@ -7,12 +7,10 @@ import java.util.List;
 public class Groupe implements Serializable{
 	private static final long serialVersionUID = 0;
 	private String nom;
-	private int idGroupe;
 	private List<Utilisateur> groupe = new ArrayList<>();
 	
-	public Groupe(String n, int i, List<Utilisateur> g) {
+	public Groupe(String n, List<Utilisateur> g) {
 		this.nom = n;
-		this.idGroupe = i;
 		this.groupe = g;
 	}
 	
@@ -20,10 +18,6 @@ public class Groupe implements Serializable{
 		this.nom=n;
 	}
 	
-	public Groupe(String nomGroupe, int id) {
-		this.nom = nomGroupe;
-		this.idGroupe = id;
-	}
 
 	@Override
 	public String toString() {
@@ -52,11 +46,9 @@ public class Groupe implements Serializable{
 	public String getNom() {
 		return nom;
 	}
-	public int getIdGroupe() {
-		return idGroupe;
-	}
 	
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
 }
+

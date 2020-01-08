@@ -60,9 +60,8 @@ public class BaseDeDonnees implements Serializable {
 			
 			//table GroupeUser
 			requeteSQL += "CREATE TABLE GroupeUser(" + 
-					"idGroupe INT AUTO_INCREMENT," + 
 					"nomGroupe VARCHAR(50) NOT NULL," + 
-					"PRIMARY KEY(idGroupe));";
+					"PRIMARY KEY(nomGroupe));";
 			
 			//table Fil
 			requeteSQL += "CREATE TABLE Fil(" + 
@@ -74,22 +73,22 @@ public class BaseDeDonnees implements Serializable {
 			//table Appartenir qui lie un utilisateur a un groupe
 			requeteSQL += "CREATE TABLE Appartenir(" + 
 					"loginUser VARCHAR(100)," + 
-					"idGroupe INT," + 
-					"PRIMARY KEY(loginUser, idGroupe)," + 
+					"nomGroupe VARCHAR(50) NOT NULL," + 
+					"PRIMARY KEY(loginUser, nomGroupe)," + 
 					"FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser)," + 
-					"FOREIGN KEY(idGroupe) REFERENCES GroupeUser(idGroupe));";
+					"FOREIGN KEY(nomGroupe) REFERENCES GroupeUser(nomGroupe));";
 			
 			
 			requeteSQL += "CREATE TABLE Correspondre(" + 
-					"idGroupe INT," + 
+					"nomGroupe VARCHAR(50) NOT NULL," + 
 					"idFil INT," + 
-					"PRIMARY KEY(idGroupe, idFil)," + 
-					"FOREIGN KEY(idGroupe) REFERENCES GroupeUser(idGroupe)," + 
+					"PRIMARY KEY(nomGroupe, idFil)," + 
+					"FOREIGN KEY(nomGroupe) REFERENCES GroupeUser(nomGroupe)," + 
 					"FOREIGN KEY(idFil) REFERENCES Fil(idFil));";
 			
 			
 			requeteSQL += "CREATE TABLE Contenir(" + 
-					"idMessage INT," + 
+					"idMessage  INT," + 
 					"idFil INT," + 
 					"PRIMARY KEY(idMessage, idFil)," + 
 					"FOREIGN KEY(idMessage) REFERENCES Message(idMessage)," + 
@@ -258,13 +257,13 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			while(groupeId.next()) {
-				int id = groupeId.getInt("idGroupe");
-				requete = "SELECT * FROM GroupeUser WHERE idGroupe = " + id;
+				String nom = groupeId.getString("nomGroupe");
+				requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';" ;
 				ResultSet groupe = requeteExecuteQuerie(requete);
 				
 				if(groupe.next()) {
 					String nomGroupe = groupe.getString("nomGroupe");
-					listeReturn.add(new Groupe(nomGroupe, id));
+					listeReturn.add(new Groupe(nomGroupe));
 				}//End if
 			}//End while
 		}//End try
@@ -276,11 +275,11 @@ public class BaseDeDonnees implements Serializable {
 	
 	
 	public int deleteUserFromGroup(Utilisateur user, Groupe group) {//Supprimer un user d'un groupe
-		int idGroupe = group.getIdGroupe();
+		String nomGroupe = group.getNom();
 		String login = user.getUsername();
 		String requete = "DELETE FROM Appartenir WHERE ";
 		requete += "loginUser = '" + login + "' ";
-		requete += "AND idGroupe = " + idGroupe;
+		requete += "AND nomGroupe = '" + nomGroupe + "';";
 		
 		return requeteExecuteUpdate(requete);
 	}
@@ -298,13 +297,12 @@ public class BaseDeDonnees implements Serializable {
 		if(res < 0)
 			throw new BaseDeDonneesException("Erreur cr�ation groupe");
 		
-		requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "' ORDER BY 'idGroupe' DESC";
+		requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';";
 		ResultSet result = requeteExecuteQuerie(requete);
 		
 		try {
 			if(result.next()) {
-				int id = result.getInt("idGroupe");
-				return new Groupe(nom, id);
+				return new Groupe(nom);
 			}
 			else { //Si aucun r�sultat
 				throw new BaseDeDonneesException("Aucun r�sultat cr�ation de groupe");
@@ -323,7 +321,7 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			while(groupe.next()) {
-				listeReturn.add(new Groupe(groupe.getString("nomGroupe"), groupe.getInt("idGroupe")));
+				listeReturn.add(new Groupe(groupe.getString("nomGroupe")));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -331,25 +329,39 @@ public class BaseDeDonnees implements Serializable {
 		return listeReturn;
 	}
 	
+	public Groupe getGroup(String nomGroupe){
+        String requete = "SELECT * FROM GroupeUser WHERE nomGroupe='" + nomGroupe + "';";
+        ResultSet groupe = requeteExecuteQuerie(requete);
+        Groupe retour = null;
+        
+        try {
+            if(groupe.next()) {
+                retour = new Groupe(groupe.getString("nomGroupe"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return retour;
+    }
+	
 	public int deleteGroup(Groupe groupe) {
 		/* Todo
 		 * Supprimer tout ce qui est en lien ?
 		 */
-		String requete = "DELETE FROM GroupeUser WHERE idGroupe = " + groupe.getIdGroupe() + " AND nomGroupe = '" + groupe.getNom() + "'";
+		String requete = "DELETE FROM GroupeUser WHERE nomGroupe = '" + groupe.getNom() + "';";
 		return requeteExecuteUpdate(requete);
 	}
 		
 	public int modifyGroup(Groupe groupe) {
 		String requete = "UPDATE GroupeUser SET ";
-		requete += "nomGroupe = '" + groupe.getNom() + "' ";
-		requete += "WHERE idGroupe = '" + groupe.getIdGroupe() +"'";
+		requete += "nomGroupe = '" + groupe.getNom() + "';";
 		return requeteExecuteUpdate(requete);
 	}
 	
 	public int addUserToGroup(Groupe groupe, Utilisateur user) {
 		String requete ="INSERT INTO Appartenir VALUES(";
 		requete += "'" + user.getUsername() + "', ";
-		requete += groupe.getIdGroupe();
+		requete += groupe.getNom();
 		requete += ")";
 		return requeteExecuteUpdate(requete);
  	}
@@ -357,8 +369,7 @@ public class BaseDeDonnees implements Serializable {
 	public List<Utilisateur> getUsersOfGroup(Groupe groupe){
 		
 		//R�cup�ration de tous les Users qui correspondent au groupe
-		int id = groupe.getIdGroupe();
-		String requete = "SELECT * FROM Appartenir WHERE idGroupe =" + id;
+		String requete = "SELECT * FROM Appartenir WHERE nomGroupe ='" + groupe.getNom() + "';";
 		ResultSet loginUsers = requeteExecuteQuerie(requete);
 		List<Utilisateur> listeReturn = new ArrayList<Utilisateur>();
 		

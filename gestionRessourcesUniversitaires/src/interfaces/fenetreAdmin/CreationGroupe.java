@@ -51,7 +51,6 @@ public class CreationGroupe extends Fenetre {
 		if(e.getSource() == retour) {
 			dispose();
 		} else if(e.getSource() == valider) {
-			System.out.println("Retour à l'envoyeur");
 		}
 	}
 

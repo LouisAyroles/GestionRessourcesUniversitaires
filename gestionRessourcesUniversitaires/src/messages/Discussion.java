@@ -22,6 +22,16 @@ public class Discussion implements Serializable{
 		this.groupe = g;
 		this.idDiscussion = i;
 	}
+	
+
+	public Discussion (String titre, Utilisateur utilisateur, Groupe groupe, int id, Message messageDebut) {
+		this.titre = titre;
+		this.createur = utilisateur;
+		this.groupe = groupe;
+		this.idDiscussion = id;
+		this.messages.add(messageDebut);
+	}
+	
 	public Utilisateur getCreateur() {
 		return createur;
 	}

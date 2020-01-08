@@ -17,6 +17,12 @@ import javax.swing.JTextField;
 
 import interfaces.fenetreUtil.Fenetre;
 import interfaces.utilitaire.Bouton;
+import utilisateurs.Administratif;
+import utilisateurs.Enseignant;
+import utilisateurs.Etudiant;
+import utilisateurs.Technicien;
+import utilisateurs.TypeUtilisateur;
+import utilisateurs.Utilisateur;
 
 /**
  * @author lamp
@@ -26,6 +32,7 @@ public class CreationUser extends Fenetre {
 
 	private Bouton valider = new Bouton("Valider");
 	private Bouton retour = new Bouton("Retour");
+	private MainAdminFrame monParent;
 	private JPanel login = new JPanel();
 	private JTextField saisieLogin = new JTextField(20);
 	private JPanel nom = new JPanel();
@@ -39,14 +46,17 @@ public class CreationUser extends Fenetre {
 	
 	private JPanel categorie = new JPanel();
 	private ButtonGroup saisieCategorie = new ButtonGroup();
-	private JRadioButton categorie1 = new JRadioButton("Campus");
-	private JRadioButton categorie2 = new JRadioButton("Agents de Service");
+	private JRadioButton categorie1 = new JRadioButton("Etudiant");
+	private JRadioButton categorie2 = new JRadioButton("Enseignant");
+	private JRadioButton categorie3 = new JRadioButton("Administratif");
+	private JRadioButton categorie4 = new JRadioButton("Technicien");
 	
 	private JPanel bouttons = new JPanel();
 	
 	
-	public CreationUser() {
+	public CreationUser(MainAdminFrame parent) {
 		super();
+		monParent = parent;
 		setSize((int)getCurrentScreenSize().getWidth()/3,(int)(getCurrentScreenSize().getHeight()/1.5));
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setTitle("Création/Modification d'un utilisateur");
@@ -58,13 +68,36 @@ public class CreationUser extends Fenetre {
 	}
 	
 	
+	public Bouton getValider() {
+		return valider;
+	}
+	
+	public Utilisateur getUtilisateurSaisi() {
+		String password = new String(saisieMdp.getPassword());
+		String id = saisieLogin.getText();
+		String name = saisieNom.getText();
+		String surname = saisiePrenom.getText();
+		if(password.length() != 0 && 
+				password.equals(new String(saisieConfirmation.getPassword()))) {
+			if(id.length() != 0 && name.length() != 0 && surname.length() != 0)
+				if(categorie2.isSelected()) {
+					return new Enseignant(name, surname, id, password);
+				} else if(categorie1.isSelected()) {
+					return new Etudiant(name, surname, id, password);
+				} else if(categorie3.isSelected()) {
+					return new Administratif(name, surname, id, password);
+				} else {
+					return new Technicien(name, surname, id, password);
+				}
+		}
+		return null;
+	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource() == retour) {
 			dispose();
 		} else if(e.getSource() == valider) {
-			dispose();
 		}
 	}
 
@@ -126,13 +159,17 @@ public class CreationUser extends Fenetre {
 		categorie1.setSelected(true);
 		saisieCategorie.add(categorie1);
 		saisieCategorie.add(categorie2);
+		saisieCategorie.add(categorie3);
+		saisieCategorie.add(categorie4);
 		categorie.add(categorie1);
 		categorie.add(categorie2);
+		categorie.add(categorie3);
+		categorie.add(categorie4);
 	}
 	
 	public void initBouttons() {
 		bouttons.setLayout(new FlowLayout(FlowLayout.CENTER, 60, 0));
-		valider.addActionListener(this);
+		valider.addActionListener(monParent);
 		retour.addActionListener(this);
 		bouttons.add(valider);
 		bouttons.add(retour);

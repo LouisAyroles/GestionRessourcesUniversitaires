@@ -54,6 +54,7 @@ public class MainAdminFrame extends Fenetre{
 	private Bouton deleteUser = new Bouton("Supprimer utilisateur");
 	private Bouton retour = new Bouton("Retour");
 	private CreationGroupe nouv;
+	private CreationUser nouvUser;
 	private String saisieGroupe = "";
 	private JScrollPane listGroupe = new JScrollPane(groupes, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	private JScrollPane midUser = new JScrollPane(users, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -91,55 +92,85 @@ public class MainAdminFrame extends Fenetre{
 		int option;
 		if(e.getSource() == deleteGroup) {
 			String groupeErase = groupes.getSelectedValue();
-			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe "+ groupeErase+ "?",
-					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(option == JOptionPane.OK_OPTION) {
-				if(bdd.deleteGroup(bdd.getGroup(groupeErase)) == -1) {
-					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
-				} else {
-					JOptionPane.showMessageDialog(this, "Groupe " + groupeErase + " effacé.");
-					listGroup.remove(groupeErase);
+			if(groupeErase != null) {
+				option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer le groupe "+ groupeErase+ "?",
+						"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(option == JOptionPane.OK_OPTION) {
+					if(bdd.deleteGroup(bdd.getGroup(groupeErase)) == -1) {
+						JOptionPane.showMessageDialog(this, "La suppression a échoué.");
+					} else {
+						JOptionPane.showMessageDialog(this, "Groupe " + groupeErase + " effacé.");
+						listGroup.remove(groupeErase);
+					}
+					listGroupe.setViewportView(groupes);
 				}
-				listGroupe.setViewportView(groupes);
+			} else {
+				JOptionPane.showMessageDialog(this, "Veuillez sélectionner un groupe");
 			}
 		} else if(e.getSource() == editGroup) {
 			System.out.println("Pas encore prêt");
 		} else if(e.getSource() == deleteUser) {
 			Utilisateur efface = null;
 			String userErase = users.getSelectedValue();
-			option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer l'utilisateur "+ userErase + "?",
-					"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if(option == JOptionPane.OK_OPTION) {
-				for(Utilisateur u : arrayUser) {
-					if(u.toString().equals(userErase)) {
-						efface = u;
+			if(userErase != null) {
+				option = effaceDemande.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer l'utilisateur "+ userErase + "?",
+						"Suppression Groupe", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if(option == JOptionPane.OK_OPTION) {
+					for(Utilisateur u : arrayUser) {
+						System.out.println("Test u.toString() = " + u.toString() + " et userErase = " + userErase);
+						if(u.toString().equals(userErase)) {
+							efface = u;
+						}
+					}
+					if(bdd.deleteUser(efface.getUsername()) == -1) {
+						JOptionPane.showMessageDialog(this, "La suppression a échoué.");
+					} else {
+						JOptionPane.showMessageDialog(this, "Utilisateur " + userErase + " effacé.");
+						listUser.remove(userErase);
+						midUser.setViewportView(users);
 					}
 				}
-				if(bdd.deleteUser(efface.getUsername()) == -1) {
-					JOptionPane.showMessageDialog(this, "La suppression a échoué.");
-				} else {
-					JOptionPane.showMessageDialog(this, "Utilisateur " + userErase + " effacé.");
-					listUser.remove(userErase);
-					midUser.setViewportView(users);
-				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Veuillez sélectionner un utilisateur");
 			}
 		}else if(e.getSource() == creerUser) {
-			new CreationUser();
+			nouvUser = new CreationUser(this);
 		}else if(e.getSource() == retour) {
 			dispose();
 			new Login();
 		}else if(e.getSource() == creerGroup) {
 			nouv = new CreationGroupe(this);
-		}else if(e.getSource() == nouv.getValider()) {
+		}else if(nouv != null && e.getSource() == nouv.getValider()) {
 			saisieGroupe = nouv.getSaisie();
 			nouv.dispose();
-			try {
-				Groupe nouv = bdd.createGroup(saisieGroupe);
-				listGroup.add(nouv.toString());
-				listGroupe.setViewportView(groupes);
-			} catch(Exception ex) {
-				System.out.println("Pas Cool");
+			if(saisieGroupe.length() != 0) {
+				try {
+					Groupe nouv = bdd.createGroup(saisieGroupe);
+					listGroup.add(nouv.toString());
+					listGroupe.setViewportView(groupes);
+				} catch(Exception ex) {
+					JOptionPane.showMessageDialog(this, "La création a échoué.\n Erreur de base de données");
+				}
+				JOptionPane.showMessageDialog(this, "Groupe créé avec succès.");
+			} else {
+				JOptionPane.showMessageDialog(this, "La création a échoué.\n Erreur de saisie");
 			}
+			refresh();
+		} else if(nouvUser != null && e.getSource() == nouvUser.getValider()) {
+			Utilisateur userNouv = nouvUser.getUtilisateurSaisi();
+			nouvUser.dispose();
+			try {
+				if(bdd.createUser(userNouv) == -1) {
+					JOptionPane.showMessageDialog(this, "La création a échoué.\n Erreur de base de données");
+				} else {
+					listUser.add(userNouv.toString());
+					midUser.setViewportView(users);
+					JOptionPane.showMessageDialog(this, "Utilisateur créé avec succès.");
+				}
+			} catch(Exception ex) {
+				JOptionPane.showMessageDialog(this, "La création a échoué.\n Erreur de saisie");
+			}
+			refresh();
 		}
 	}
 	

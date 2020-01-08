@@ -620,6 +620,31 @@ public class BaseDeDonnees implements Serializable {
 		return requeteExecuteUpdate(requete);
 	}
 	
+	public int addMessageToFil(int idMessage, int idFil) {
+		String requete = "INSERT INTO Contenir VALUES(";
+		requete += idMessage + ", ";
+		requete += idFil;
+		requete += ")";
+		
+		return requeteExecuteUpdate(requete);
+	}
+	
+	public List<Message> getMessageOfFil(int id){
+		List<Message> listReturn = new ArrayList<>();
+		listReturn.add(getMessageById(id)); //On ajoute le message qui a créé le fil
+		String requete = "SELECT * FROM Contenir WHERE idFil = " + id;
+		ResultSet message = requeteExecuteQuerie(requete);
+		
+		try {
+			while(message.next()) {
+				listReturn.add(getMessageById(message.getInt("idMessage")));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return listReturn;
+	}
+	
 	/********************************
 	 * 								*
 	 * 			Générique	 		*

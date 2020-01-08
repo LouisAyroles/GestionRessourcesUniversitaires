@@ -27,17 +27,17 @@ public class testUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(400, 600);
 		
-		ajoutJPanel(frame);
+		ajoutJPanel(frame, 1);
 
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
 	}
 	
-	private static void ajoutJPanel(JFrame frame) throws BaseDeDonneesException, IOException {
+	private static void ajoutJPanel(JFrame frame, int id) throws BaseDeDonneesException, IOException {
 		JPanel jp = new JPanel();
 		jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
-		List<Message> listeMsg = getDiscussion();
+		List<Message> listeMsg = getMessageOfDiscussion(id);
 		for(Message msg : listeMsg) {
 			jp.add(boxDiscussion(msg));
 		}
@@ -73,8 +73,8 @@ public class testUI {
 		return box;
 	}
 	
-	private static List<Message> getDiscussion() throws BaseDeDonneesException {
-		Discussion d = bdd.getFilById(1);
+	private static List<Message> getMessageOfDiscussion(int id) throws BaseDeDonneesException {
+		Discussion d = bdd.getFilById(id);
 		return bdd.getMessageOfFil(d.getIdDiscussion());
 	}
 	

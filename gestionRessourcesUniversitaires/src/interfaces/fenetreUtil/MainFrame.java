@@ -81,8 +81,7 @@ public class MainFrame extends Fenetre{
 			}
 		}
 		setSize((int)getCurrentScreenSize().getWidth(),(int)getCurrentScreenSize().getHeight());
-		arbo = filDiscussion(this.connected.getUsername());
-		arbo.setCellRenderer(renderer);
+		
 		initConversations();
 		initfocus();
 		initFenetre();
@@ -125,6 +124,28 @@ public class MainFrame extends Fenetre{
 			}catch(Exception ex) {
 				ex.printStackTrace();
 			}
+			invalidate();
+			conversations.remove(arbo);
+			arbo = filDiscussion(this.connected.getUsername());
+			arbo.setCellRenderer(renderer);
+			conversations.add(arbo, BorderLayout.CENTER);
+			arbo.addTreeSelectionListener(new TreeSelectionListener() {
+				public void valueChanged(TreeSelectionEvent e) {
+					node = (DefaultMutableTreeNode)arbo.getLastSelectedPathComponent();
+					if(node == null) return;
+					Object nodeInfo= node.getUserObject();
+					if(nodeInfo.getClass() == Discussion.class) {
+						Discussion selected = (Discussion) nodeInfo;
+						try {
+							jp = ajoutJPanel(selected.getIdDiscussion());
+							top.setViewportView(jp);
+						} catch(Exception ex) {
+							System.out.println("J'em bas les couilles frère.");
+						}
+					}
+				}
+			});
+			validate();
 			nt.dispose();
 		} else if(arg0.getSource() == deconnexion) {
 			dispose();
@@ -235,6 +256,8 @@ public class MainFrame extends Fenetre{
 	
 	public void initConversations() {
 		conversations.setLayout(new BorderLayout());
+		arbo = filDiscussion(this.connected.getUsername());
+		arbo.setCellRenderer(renderer);
 		conversations.add(arbo, BorderLayout.CENTER);
 		conversations.setBackground(Color.LIGHT_GRAY);
 	}
@@ -281,11 +304,6 @@ public class MainFrame extends Fenetre{
             i++;
             System.out.println(discussion);
         }
-        
-        DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-        renderer.setOpenIcon(null);
-        renderer.setClosedIcon(null);
-        renderer.setLeafIcon(null);
         
         JTree tree = new JTree(racine);
         tree.setVisibleRowCount(10);

@@ -302,7 +302,6 @@ public class MainFrame extends Fenetre{
                 j++;
             }
             i++;
-            System.out.println(discussion);
         }
         
         JTree tree = new JTree(racine);

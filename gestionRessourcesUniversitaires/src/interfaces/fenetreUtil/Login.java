@@ -53,6 +53,8 @@ public class Login extends Fenetre{
 		initBot();
 		initTop();
 		initContainer();
+		adresseIPSaisie.setText("localhost");
+		adresseIPSaisie.setEditable(false);
 		positionnerCentre();
 		setResizable(false);
 		setVisible(true);

@@ -9,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -21,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -64,6 +66,7 @@ public class MainFrame extends Fenetre{
 	private JPanel jp = new JPanel();
 	private JScrollPane top;
 	private MonRenderer renderer = new MonRenderer();
+	private JTextArea texteSaisie = new JTextArea();
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
@@ -97,7 +100,6 @@ public class MainFrame extends Fenetre{
 				node = (DefaultMutableTreeNode)arbo.getLastSelectedPathComponent();
 				if(node == null) return;
 				Object nodeInfo= node.getUserObject();
-				
 				if(nodeInfo.getClass() == Discussion.class) {
 					Discussion selected = (Discussion) nodeInfo;
 					try {
@@ -118,6 +120,42 @@ public class MainFrame extends Fenetre{
 			dispose();
 			new Login();
 		} else if(arg0.getSource() == envoyer) {
+			String saisie = texteSaisie.getText();
+			int j = 0;
+			char[] saisie2 = saisie.toCharArray();
+			char[] saisie3 = new char[saisie2.length*2];
+			for(int i = 0; i < saisie2.length; i++) {
+				saisie3[j] = saisie2[i];
+				if(saisie2[i] == '\'') {
+					j++;
+					saisie3[j] = '\'';
+				}
+				j++;
+			}
+			saisie = new String(saisie3);
+			Discussion selected = null;
+			Message msg;
+			if(saisie != " ") {
+				if(node != null && node.getUserObject().getClass().equals(Discussion.class)) {
+					selected = (Discussion) node.getUserObject();
+					msg = new Message(connected, saisie, new Date());
+					try {
+						msg = bdd.creerMessage(msg);
+						if(bdd.addMessageToFil(msg.getIdMessage(), selected.getIdDiscussion()) != -1) {
+							jp = ajoutJPanel(selected.getIdDiscussion());
+							top.setViewportView(jp);
+						} else {
+							JOptionPane.showMessageDialog(this, "Envoie du message a échoué");
+						}
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(this, "Veuillez sélectionner un fil où envoyer votre message");
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Veuillez saisir un message");
+			}
 		}
 	}
 	
@@ -180,7 +218,7 @@ public class MainFrame extends Fenetre{
 		buttonHolder.add(new JPanel());
 		buttonHolder.add(envoyer);
 		bottomright.add(buttonHolder,BorderLayout.EAST);
-		bottomright.add(new JTextArea(), BorderLayout.CENTER);
+		bottomright.add(texteSaisie, BorderLayout.CENTER);
 		right.setBottomComponent(bottomright);
 	}
 	

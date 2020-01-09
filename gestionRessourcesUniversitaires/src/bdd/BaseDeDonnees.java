@@ -111,6 +111,15 @@ public class BaseDeDonnees implements Serializable {
 
 			throw new BaseDeDonneesException();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 	}
 	
 	
@@ -159,6 +168,15 @@ public class BaseDeDonnees implements Serializable {
 			} //End try
 			catch (SQLException e) {
 				e.printStackTrace();
+			}
+			finally {
+				if (connexion != null)
+					try {
+						/* Fermeture de la connexion */
+						connexion.close();
+					} catch (SQLException ignore) {
+						/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+					}
 			}
 		return null; //Si null c'est qu'il n'y a aucun résultat
 	}
@@ -238,6 +256,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return listeReturn;
 	}
 	
@@ -261,6 +288,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return returnRes;
 	}
 	
@@ -275,11 +311,11 @@ public class BaseDeDonnees implements Serializable {
 			String login = user.getUsername();
 			String requete = "SELECT * FROM Appartenir WHERE loginUser = '" + login +"'";
 			ResultSet groupeId = statement.executeQuery(requete);
-			
+			Statement statement2 = connexion.createStatement(); //Création de la future requête
+
 			while(groupeId.next()) {
 				String nom = groupeId.getString("nomGroupe");
 				requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';" ;
-				Statement statement2 = connexion.createStatement(); //Création de la future requête
 				ResultSet groupe = statement2.executeQuery(requete);
 				
 				if(groupe.next()) {
@@ -287,14 +323,23 @@ public class BaseDeDonnees implements Serializable {
 					listeReturn.add(new Groupe(nomGroupe));
 				}//End if
 				groupe.close();
-				statement2.close();
 			}//End while
 			groupeId.close();
+			statement2.close();
 			statement.close();
 			connexion.close();
 		}//End try
 		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return listeReturn;
 	}
@@ -347,6 +392,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return groupeReturn; //Si aucun r�sultat
 	}
 	
@@ -370,6 +424,15 @@ public class BaseDeDonnees implements Serializable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return listeReturn;
 	}
 	
@@ -392,6 +455,15 @@ public class BaseDeDonnees implements Serializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
         return retour;
     }
 	
@@ -421,10 +493,10 @@ public class BaseDeDonnees implements Serializable {
 			Statement statement = connexion.createStatement(); //Création de la future requête
 			String requete = "SELECT * FROM Correspondre WHERE nomGroupe = '" + groupe.getNom() + "'";
 			ResultSet discussions = statement.executeQuery(requete);
-			
+			Statement statement2 = connexion.createStatement(); //Création de la future requête
+
 			while(discussions.next()) {//Itération de tous les résultats
 				requete = "SELECT * FROM Fil WHERE idFil = " + discussions.getInt("idFil");
-				Statement statement2 = connexion.createStatement(); //Création de la future requête
 				ResultSet currentFil = statement2.executeQuery(requete);
 				
 				if(currentFil.next()) {//Fil en cours
@@ -436,14 +508,24 @@ public class BaseDeDonnees implements Serializable {
 							getMessageById(idFil)));
 				}//End if
 				currentFil.close();
-				statement2.close();
+
 			}//End while
 			discussions.close();
 			statement.close();
+			statement2.close();
 			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return listeReturn;
 	}
@@ -461,14 +543,14 @@ public class BaseDeDonnees implements Serializable {
 			//R�cup�ration de tous les Users qui correspondent au groupe
 			String requete = "SELECT * FROM Appartenir WHERE nomGroupe ='" + groupe.getNom() + "';";
 			ResultSet loginUsers = statement.executeQuery(requete);
-			
+			Statement statement2 = connexion.createStatement(); //Création de la future requête
+
 			while(loginUsers.next()) { //On parcours la liste des loginUser qu'on a r�cup
 				
 				String login = loginUsers.getString("loginUser");
 				
 				//R�cup�ration de l'user en cours
 				requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login +"'";
-				Statement statement2 = connexion.createStatement(); //Création de la future requête
 
 				ResultSet currentUser = statement2.executeQuery(requete);
 				
@@ -496,14 +578,23 @@ public class BaseDeDonnees implements Serializable {
 					}//End switch
 				}//End if
 				currentUser.close();
-				statement2.close();
 			}//End while
 			loginUsers.close();
+			statement2.close();
 			statement.close();
 			connexion.close();
 		}//End try
 		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return listeReturn;
 	}
@@ -528,6 +619,15 @@ public class BaseDeDonnees implements Serializable {
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return returnGroupe;
 	}
@@ -581,7 +681,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return messageReturn;
 	}
 	
@@ -613,6 +721,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return messageReturn;
 	}
 	
@@ -625,7 +742,8 @@ public class BaseDeDonnees implements Serializable {
 			Statement statement = connexion.createStatement(); //Création de la future requête
 			String requete = "SELECT * FROM Fil WHERE idFil = " + id; //idFil, car si c'est un message qui a créé un Fil, alors idFil = idMessage
 			ResultSet discussion = statement.executeQuery(requete);
-			
+			Statement statement2 = connexion.createStatement(); //Création de la future requête
+
 			if(discussion.next()) {
 				int idFil = discussion.getInt("idFil");
 				returnDiscussion = new Discussion(discussion.getString("titre"), 
@@ -636,22 +754,28 @@ public class BaseDeDonnees implements Serializable {
 			}
 			else {//Ce message n'a pas créé de fil
 				requete = "SELECT * FROM Contenir WHERE idMessage = " + id;
-				Statement statement2 = connexion.createStatement(); //Création de la future requête
 				discussion = statement2.executeQuery(requete);
 				if(discussion.next()) {//S'il le message est contenu dans un fil de discussion
 					int idFil = discussion.getInt("idFil");
 					returnDiscussion = getFilById(idFil);
 				}
-				discussion.close();
-				statement2.close();
-				connexion.close();
 			}
 			discussion.close();
+			statement2.close();
 			statement.close();
 			connexion.close();
 		} 
 		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return returnDiscussion;
 	}
@@ -676,6 +800,15 @@ public class BaseDeDonnees implements Serializable {
 		} 
 		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return userReturn;
 	}
@@ -720,6 +853,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return returnFil;
 	}
 	
@@ -743,6 +885,15 @@ public class BaseDeDonnees implements Serializable {
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return groupeReturn;
 	}
@@ -784,6 +935,15 @@ public class BaseDeDonnees implements Serializable {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
+		}
 		return listReturn;
 	}
 	
@@ -808,6 +968,15 @@ public class BaseDeDonnees implements Serializable {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+		}
+		finally {
+			if (connexion != null)
+				try {
+					/* Fermeture de la connexion */
+					connexion.close();
+				} catch (SQLException ignore) {
+					/* Si une erreur survient lors de la fermeture, il suffit de l'ignorer. */
+				}
 		}
 		return -1;
 	}

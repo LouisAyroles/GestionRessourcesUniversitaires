@@ -32,7 +32,7 @@ public class MonRenderer extends DefaultTreeCellRenderer {
 			
 			label = new JLabel(value.toString());
 			label.setFont(new Font("Arial", Font.PLAIN, 12)); //police et couleur de la feuille
-			label.setIcon(new ImageIcon("img/conv.png")); // pour mettre un icone personnalisé
+			label.setIcon(new ImageIcon("src/img/conv.png")); // pour mettre un icone personnalisé
 			label.setForeground(Color.BLUE);//couleur de police
 			if(sel) {
 				label.setForeground(Color.GRAY);
@@ -42,7 +42,7 @@ public class MonRenderer extends DefaultTreeCellRenderer {
 		}else if (node.getUserObject().getClass() == Groupe.class) {
 			label = new JLabel(value.toString());
 			label.setFont(new Font("Arial", Font.PLAIN, 12)); //police et couleur de la feuille
-			label.setIcon(new ImageIcon("img/groupe.png")); // pour mettre un icone personnalisé
+			label.setIcon(new ImageIcon("src/img/groupe.png")); // pour mettre un icone personnalisé
 			label.setForeground(Color.BLACK);//couleur de police
 			if(sel) {
 				label.setForeground(Color.GRAY);

@@ -62,7 +62,7 @@ public class MainFrame extends Fenetre{
 	private Utilisateur connected;
 	private JTree arbo;
 	private DefaultMutableTreeNode node;
-	private JButton envoyer = new BoutonImage("img/fleche.jpg");
+	private JButton envoyer = new BoutonImage("src/img/fleche.jpg");
 	private JPanel jp = new JPanel();
 	private JScrollPane top;
 	private MonRenderer renderer = new MonRenderer();

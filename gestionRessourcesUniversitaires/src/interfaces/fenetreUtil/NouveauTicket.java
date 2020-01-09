@@ -75,10 +75,14 @@ public class NouveauTicket extends Fenetre {
 		String saisie = texteSaisi.getText();
 		Message msg;
 		Discussion nouv = null;
-		Groupe g = null;
+		Groupe gs = null;
+		Groupe gd = null;
 		for(Groupe it : bdd.getAllGroup()) {
 			if(it.toString().equals(choixGroupe.getSelectedItem())) {
-				g = it;
+				gs = it;
+			}
+			if(it.toString().equals(choixGroupeDestination.getSelectedItem())) {
+				gd = it;
 			}
 		}
 		int j = 0;
@@ -106,22 +110,10 @@ public class NouveauTicket extends Fenetre {
 			}
 			j++;
 		}
-		nouv = new Discussion(new String(saisie5), connected, g, 0, msg);
+		nouv = new Discussion(new String(saisie5), connected, gs,gd, 0, msg);
 		return nouv;
 	}
-	
-	/*char[] saisie4 = entreeTitre.getText().toCharArray();
-		char[] saisie5 = new char[saisie2.length*2];
-		texteSaisi.setText("");
-		for(int i = 0; i < saisie4.length; i++) {
-			saisie5[j] = saisie4[i];
-			if(saisie4[i] == '\'') {
-				j++;
-				saisie5[j] = '\'';
-			}
-			j++;
-		}
-		nouv = new Discussion(new String(saisie5), connected, g, 0, msg);*/
+
 	
 	
 	public void initSaisieMessage() {
@@ -150,7 +142,7 @@ public class NouveauTicket extends Fenetre {
 	public void initGroupeDestination() {
 		JLabel groupe = new JLabel("destinataire : ");
 		for(Groupe g : bdd.getAllGroup()) {
-			if(!g.toString().substring(0, 2).equals("Gr"))
+			if(!g.toString().substring(0, 1).equals("T"))
 				nomsIntervenants.add(g.toString());
 		}
 		saisieGroupeDestination.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
@@ -162,7 +154,8 @@ public class NouveauTicket extends Fenetre {
 	public void initGroupeSource() {
 		JLabel groupe = new JLabel("Source : ");
 		for(Groupe g : bdd.getGroupsOfUser(connected)) {
-			nomsDesGroupes.add(g.toString());
+			if(g.toString().substring(0, 1).equals("T"))
+				nomsDesGroupes.add(g.toString());
 		}
 		saisieGroupeSource.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
 		saisieGroupeSource.add(groupe);

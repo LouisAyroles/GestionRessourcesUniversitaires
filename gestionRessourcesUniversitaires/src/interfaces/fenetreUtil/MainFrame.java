@@ -120,7 +120,7 @@ public class MainFrame extends Fenetre{
 		} else if(nt != null && arg0.getSource() == nt.getValider()) {
 			Discussion nouv = nt.getDiscussion();
 			try {
-				bdd.creerFil(bdd.creerMessage(nouv.getFirstMessage()), nouv.getTitre(), nouv.getGroupe());
+				bdd.creerFil(bdd.creerMessage(nouv.getFirstMessage()), nouv.getTitre(), nouv.getGroupe(),nouv.getGroupeDest());
 			}catch(Exception ex) {
 				ex.printStackTrace();
 			}

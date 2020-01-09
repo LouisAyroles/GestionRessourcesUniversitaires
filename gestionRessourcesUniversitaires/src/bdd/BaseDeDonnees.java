@@ -58,7 +58,7 @@ public class BaseDeDonnees implements Serializable {
 					 "dateMessage BIGINT NOT NULL," +
 					 "loginUser VARCHAR(100) NOT NULL," +
 					 "PRIMARY KEY(idMessage)," +
-					 "FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser));";
+					 "FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser) ON DELETE CASCADE);";
 			
 			//table GroupeUser
 			requeteSQL += "CREATE TABLE GroupeUser(" + 
@@ -70,7 +70,7 @@ public class BaseDeDonnees implements Serializable {
 					"idFil INT," + 
 					"titre VARCHAR(50)," + 
 					"PRIMARY KEY(idFil)," + 
-					"FOREIGN KEY(idFil) REFERENCES Message(idMessage));";
+					"FOREIGN KEY(idFil) REFERENCES Message(idMessage)ON DELETE CASCADE);";
 			
 			//table Appartenir qui lie un utilisateur a un groupe
 			requeteSQL += "CREATE TABLE Appartenir(" + 
@@ -78,7 +78,7 @@ public class BaseDeDonnees implements Serializable {
 					"nomGroupe VARCHAR(50) NOT NULL," + 
 					"PRIMARY KEY(loginUser, nomGroupe)," + 
 					"FOREIGN KEY(loginUser) REFERENCES Utilisateur(loginUser)," + 
-					"FOREIGN KEY(nomGroupe) REFERENCES GroupeUser(nomGroupe));";
+					"FOREIGN KEY(nomGroupe) REFERENCES GroupeUser(nomGroupe)ON DELETE CASCADE);";
 			
 			
 			requeteSQL += "CREATE TABLE Correspondre(" + 
@@ -86,7 +86,7 @@ public class BaseDeDonnees implements Serializable {
 					"idFil INT," + 
 					"PRIMARY KEY(nomGroupe, idFil)," + 
 					"FOREIGN KEY(nomGroupe) REFERENCES GroupeUser(nomGroupe)," + 
-					"FOREIGN KEY(idFil) REFERENCES Fil(idFil));";
+					"FOREIGN KEY(idFil) REFERENCES Fil(idFil)ON DELETE CASCADE);";
 			
 			
 			requeteSQL += "CREATE TABLE Contenir(" + 
@@ -94,7 +94,7 @@ public class BaseDeDonnees implements Serializable {
 					"idFil INT," + 
 					"PRIMARY KEY(idMessage, idFil)," + 
 					"FOREIGN KEY(idMessage) REFERENCES Message(idMessage)," + 
-					"FOREIGN KEY(idFil) REFERENCES Fil(idFil));";
+					"FOREIGN KEY(idFil) REFERENCES Fil(idFil)ON DELETE CASCADE);";
 
 			String[] requetes = requeteSQL.split(";");
 
@@ -819,16 +819,17 @@ public class BaseDeDonnees implements Serializable {
 	 * 								*
 	 ********************************/
 	
-	public int creerFil(Message message, String titre, Groupe groupe) {
-		String requete = "INSERT INTO Fil VALUES(";
-		requete += message.getIdMessage() + ", ";
-		requete += "'" + titre +"'";
-		requete += ")";
-		TreeSet<Integer> returnInt = new TreeSet<>(); //TreeSet pour trier les deux nombres et renvoyer le plus petit. En cas d'erreurs, -1 sera renvoyé
-		returnInt.add(requeteExecuteUpdate(requete));
-		returnInt.add(addFilToGroup(groupe.getNom(), message.getIdMessage()));
-		return returnInt.first();
-	}
+    public int creerFil(Message message, String titre, Groupe groupeSource, Groupe groupeDest) {
+        String requete = "INSERT INTO Fil VALUES(";
+        requete += message.getIdMessage() + ", ";
+        requete += "'" + titre +"'";
+        requete += ")";
+        TreeSet<Integer> returnInt = new TreeSet<>(); //TreeSet pour trier les deux nombres et renvoyer le plus petit. En cas d'erreurs, -1 sera renvoyÃ©
+        returnInt.add(requeteExecuteUpdate(requete));
+        returnInt.add(addFilToGroup(groupeSource.getNom(), message.getIdMessage()));
+        returnInt.add(addFilToGroup(groupeDest.getNom(), message.getIdMessage()));
+        return returnInt.first();
+    }
 	
 	public Discussion getFilById(int id) {
 

@@ -13,6 +13,7 @@ public class Discussion implements Serializable {
 	private String titre;
 	private Utilisateur createur;
 	private Groupe groupe;
+	private Groupe groupeDest=null;
 	private int idDiscussion;
 	private List<Message> messages = new ArrayList<>();
 
@@ -31,6 +32,15 @@ public class Discussion implements Serializable {
 		this.messages.add(messageDebut);
 	}
 
+	public Discussion(String titre, Utilisateur utilisateur, Groupe groupe,Groupe groupeDest, int id, Message messageDebut) {
+		this.titre = titre;
+		this.createur = utilisateur;
+		this.groupe = groupe;
+		this.groupeDest=groupeDest;
+		this.idDiscussion = id;
+		this.messages.add(messageDebut);
+	}
+	
 	public Utilisateur getCreateur() {
 		return createur;
 	}
@@ -45,6 +55,10 @@ public class Discussion implements Serializable {
 
 	public Groupe getGroupe() {
 		return groupe;
+	}
+	
+	public Groupe getGroupeDest() {
+		return groupeDest;
 	}
 
 	public List<Message> getMessages() {

@@ -95,9 +95,33 @@ public class NouveauTicket extends Fenetre {
 		}
 		saisie = new String(saisie3);
 		msg = new Message(connected, saisie, new Date());
-		nouv = new Discussion(entreeTitre.getText(), connected, g, 0, msg);
+		j = 0;
+		char[] saisie4 = entreeTitre.getText().toCharArray();
+		char[] saisie5 = new char[saisie4.length*2];
+		for(int i = 0; i < saisie4.length; i++) {
+			saisie5[j] = saisie4[i];
+			if(saisie4[i] == '\'') {
+				j++;
+				saisie5[j] = '\'';
+			}
+			j++;
+		}
+		nouv = new Discussion(new String(saisie5), connected, g, 0, msg);
 		return nouv;
 	}
+	
+	/*char[] saisie4 = entreeTitre.getText().toCharArray();
+		char[] saisie5 = new char[saisie2.length*2];
+		texteSaisi.setText("");
+		for(int i = 0; i < saisie4.length; i++) {
+			saisie5[j] = saisie4[i];
+			if(saisie4[i] == '\'') {
+				j++;
+				saisie5[j] = '\'';
+			}
+			j++;
+		}
+		nouv = new Discussion(new String(saisie5), connected, g, 0, msg);*/
 	
 	
 	public void initSaisieMessage() {

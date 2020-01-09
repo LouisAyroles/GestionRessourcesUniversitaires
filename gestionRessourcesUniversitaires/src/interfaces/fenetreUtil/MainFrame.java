@@ -197,7 +197,7 @@ public class MainFrame extends Fenetre{
         
         i=0;
         for (Discussion discussion : discussions) {
-            treeD[i] = new DefaultMutableTreeNode(discussion.getTitre());
+            treeD[i] = new DefaultMutableTreeNode(discussion);
 
             j=0;
             for (Groupe groupe : groupes) {

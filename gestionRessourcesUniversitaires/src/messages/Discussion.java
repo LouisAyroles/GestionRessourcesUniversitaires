@@ -50,6 +50,13 @@ public class Discussion implements Serializable {
 	public List<Message> getMessages() {
 		return messages;
 	}
+	
+	public Message getFirstMessage() {
+		if(!messages.isEmpty()) {
+			return messages.get(0);
+		}
+		return null;
+	}
 
 	@Override
 	public String toString() {

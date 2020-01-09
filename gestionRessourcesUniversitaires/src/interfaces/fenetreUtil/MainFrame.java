@@ -67,6 +67,7 @@ public class MainFrame extends Fenetre{
 	private JScrollPane top;
 	private MonRenderer renderer = new MonRenderer();
 	private JTextArea texteSaisie = new JTextArea();
+	private NouveauTicket nt;
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
@@ -115,7 +116,16 @@ public class MainFrame extends Fenetre{
 	
 	public void actionPerformed(ActionEvent arg0) {
 		if(arg0.getSource() == itemTicket) {
-			new NouveauTicket();
+			nt = new NouveauTicket(bdd, connected);
+			nt.getValider().addActionListener(this);
+		} else if(nt != null && arg0.getSource() == nt.getValider()) {
+			Discussion nouv = nt.getDiscussion();
+			try {
+				bdd.creerFil(bdd.creerMessage(nouv.getFirstMessage()), nouv.getTitre(), nouv.getGroupe());
+			}catch(Exception ex) {
+				ex.printStackTrace();
+			}
+			nt.dispose();
 		} else if(arg0.getSource() == deconnexion) {
 			dispose();
 			new Login();
@@ -124,6 +134,7 @@ public class MainFrame extends Fenetre{
 			int j = 0;
 			char[] saisie2 = saisie.toCharArray();
 			char[] saisie3 = new char[saisie2.length*2];
+			texteSaisie.setText("");
 			for(int i = 0; i < saisie2.length; i++) {
 				saisie3[j] = saisie2[i];
 				if(saisie2[i] == '\'') {
@@ -268,6 +279,7 @@ public class MainFrame extends Fenetre{
                 j++;
             }
             i++;
+            System.out.println(discussion);
         }
         
         DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();

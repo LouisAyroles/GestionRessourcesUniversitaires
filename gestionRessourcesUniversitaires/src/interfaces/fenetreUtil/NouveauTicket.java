@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.Box;
@@ -19,7 +20,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import bdd.BaseDeDonnees;
 import interfaces.utilitaire.Bouton;
+import messages.Discussion;
+import messages.Message;
+import utilisateurs.Groupe;
+import utilisateurs.Utilisateur;
 
 /**
  * @author Léo
@@ -42,9 +48,15 @@ public class NouveauTicket extends Fenetre {
 	private JComboBox<String> choixGroupe = new JComboBox<>(nomsDesGroupes);
 	private Bouton valider = new Bouton("Valider");
 	private Bouton retour = new Bouton("Retour");
+	private BaseDeDonnees bdd;
+	private Utilisateur connected;
+	private JTextArea texteSaisi = new JTextArea(10, 40);
+	private JTextField entreeTitre = new JTextField(20);
 	
-	public NouveauTicket() {
+	public NouveauTicket(BaseDeDonnees bdd, Utilisateur connected) {
 		super();
+		this.bdd = bdd;
+		this.connected = connected;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setSize((int)getCurrentScreenSize().getWidth()/3,(int)getCurrentScreenSize().getHeight()/2);
 		setTitle("NouveauTicket");
@@ -59,6 +71,34 @@ public class NouveauTicket extends Fenetre {
 		setVisible(true);
 	}
 
+	public Discussion getDiscussion() {
+		String saisie = texteSaisi.getText();
+		Message msg;
+		Discussion nouv = null;
+		Groupe g = null;
+		for(Groupe it : bdd.getAllGroup()) {
+			if(it.toString().equals(choixGroupe.getSelectedItem())) {
+				g = it;
+			}
+		}
+		int j = 0;
+		char[] saisie2 = saisie.toCharArray();
+		char[] saisie3 = new char[saisie2.length*2];
+		texteSaisi.setText("");
+		for(int i = 0; i < saisie2.length; i++) {
+			saisie3[j] = saisie2[i];
+			if(saisie2[i] == '\'') {
+				j++;
+				saisie3[j] = '\'';
+			}
+			j++;
+		}
+		saisie = new String(saisie3);
+		msg = new Message(connected, saisie, new Date());
+		nouv = new Discussion(entreeTitre.getText(), connected, g, 0, msg);
+		return nouv;
+	}
+	
 	
 	public void initSaisieMessage() {
 		JPanel top = new JPanel();
@@ -70,7 +110,7 @@ public class NouveauTicket extends Fenetre {
 		top.add(Box.createHorizontalGlue());
 		top.add(Box.createHorizontalGlue());
 		saisieMessage.add(top);
-		middle.add(new JTextArea("Entrez votre saisie ici...", 10, 40));
+		middle.add(texteSaisi);
 		saisieMessage.add(middle);
 		bot.setLayout(new BoxLayout(bot, BoxLayout.X_AXIS));
 		bot.add(Box.createHorizontalGlue());
@@ -85,11 +125,10 @@ public class NouveauTicket extends Fenetre {
 	
 	public void initGroupeDestination() {
 		JLabel groupe = new JLabel("destinataire : ");
-		nomsIntervenants.add("Plombier");
-		nomsIntervenants.add("Electricien");
-		nomsIntervenants.add("Securite");
-		nomsIntervenants.add("Serveurs");
-		nomsIntervenants.add("Entretien");
+		for(Groupe g : bdd.getAllGroup()) {
+			if(!g.toString().substring(0, 2).equals("Gr"))
+				nomsIntervenants.add(g.toString());
+		}
 		saisieGroupeDestination.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
 		saisieGroupeDestination.add(groupe);
 		choixGroupeDestination.setSelectedIndex(0);
@@ -98,9 +137,8 @@ public class NouveauTicket extends Fenetre {
 	
 	public void initGroupeSource() {
 		JLabel groupe = new JLabel("Source : ");
-		for(int i = 0; i < 3; i++) {
-			for(int j = 0; j < 6; j++)
-				nomsDesGroupes.add("A" + (i+1) + (j+1));
+		for(Groupe g : bdd.getGroupsOfUser(connected)) {
+			nomsDesGroupes.add(g.toString());
 		}
 		saisieGroupeSource.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
 		saisieGroupeSource.add(groupe);
@@ -110,7 +148,6 @@ public class NouveauTicket extends Fenetre {
 	
 	public void initSaisieTitre() {
 		JLabel titre = new JLabel("Titre :");
-		JTextField entreeTitre = new JTextField(20);
 		entreeTitre.setForeground(Color.gray);
 		saisieTitre.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));
 		saisieTitre.add(titre);
@@ -134,10 +171,12 @@ public class NouveauTicket extends Fenetre {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		if(e.getSource() == valider) {
-			dispose();
-		} else if(e.getSource() == retour) {
+		if(e.getSource() == retour) {
 			dispose();
 		}
+	}
+	
+	public Bouton getValider() {
+		return valider;
 	}
 }

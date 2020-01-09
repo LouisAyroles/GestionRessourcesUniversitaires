@@ -31,7 +31,6 @@ public class BaseDeDonnees implements Serializable {
 	
 	public void creationBDD() throws BaseDeDonneesException {
 		try {
-
 			Class.forName("com.mysql.cj.jdbc.Driver");
 
 			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD);
@@ -122,10 +121,13 @@ public class BaseDeDonnees implements Serializable {
 	 ********************************/
 	
 	public Utilisateur usernameVersUtilisateur(String login) throws BaseDeDonneesException {
-			String requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login + "'";
-			ResultSet utilisateur = requeteExecuteQuerie(requete);
-
 			try {
+				connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+				Statement statement = connexion.createStatement(); //Création de la future requête
+				
+				String requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login + "'";
+				ResultSet utilisateur = statement.executeQuery(requete);
+				
 				if(utilisateur.next()) {
 					//Récupération des champs
 					String loginUser = utilisateur.getString("loginUser");
@@ -150,18 +152,14 @@ public class BaseDeDonnees implements Serializable {
 						default:
 							break;
 					}//End switch
-					utilisateur.close();
 				}//End if
+				utilisateur.close();
+				statement.close();
+				connexion.close();
 			} //End try
 			catch (SQLException e) {
 				e.printStackTrace();
 			}
-		try {
-			utilisateur.close();
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-		}	
 		return null; //Si null c'est qu'il n'y a aucun résultat
 	}
 	
@@ -198,11 +196,13 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public List<Utilisateur> getAllUser(){
-		String requete = "SELECT * FROM Utilisateur";
 		List<Utilisateur> listeReturn = new ArrayList<>();
-		ResultSet utilisateur = requeteExecuteQuerie(requete);
-		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Utilisateur";
+			ResultSet utilisateur = statement.executeQuery(requete);
+			
 			while(utilisateur.next()) {
 					//Récupération des champs
 					String loginUser = utilisateur.getString("loginUser");
@@ -232,13 +232,9 @@ public class BaseDeDonnees implements Serializable {
 					}//End switch
 			}//End while
 			utilisateur.close();
+			statement.close();
+			connexion.close();
 		}//End try 
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
-			utilisateur.close();
-		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -246,57 +242,57 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public int connexion(String login, String password) {
-		String requete = "SELECT * FROM Utilisateur";
-		requete += " WHERE loginUser = '" + login + "'";
-		requete += " AND passwordUser = '" + password +"'";
-		ResultSet result = requeteExecuteQuerie(requete);
-		
+		int returnRes = -1;
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Utilisateur";
+			requete += " WHERE loginUser = '" + login + "'";
+			requete += " AND passwordUser = '" + password +"'";
+			ResultSet result = statement.executeQuery(requete);
+			
 			if(result.next()) { //S'il y en a un, donc ça veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
-				result.close();
-				return 1;
+				returnRes = 1;
 			}
-			else
-				return -1;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			result.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return -1;
+		return returnRes;
 	}
 	
 	
 	public List<Groupe> getGroupsOfUser(Utilisateur user){
-		String login = user.getUsername();
-		String requete = "SELECT * FROM Appartenir WHERE loginUser = '" + login +"'";
-		ResultSet groupeId = requeteExecuteQuerie(requete);
+
 		List<Groupe> listeReturn = new ArrayList<>();
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String login = user.getUsername();
+			String requete = "SELECT * FROM Appartenir WHERE loginUser = '" + login +"'";
+			ResultSet groupeId = statement.executeQuery(requete);
+			
 			while(groupeId.next()) {
 				String nom = groupeId.getString("nomGroupe");
 				requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';" ;
-				ResultSet groupe = requeteExecuteQuerie(requete);
+				Statement statement2 = connexion.createStatement(); //Création de la future requête
+				ResultSet groupe = statement2.executeQuery(requete);
 				
 				if(groupe.next()) {
 					String nomGroupe = groupe.getString("nomGroupe");
 					listeReturn.add(new Groupe(nomGroupe));
 				}//End if
 				groupe.close();
+				statement2.close();
 			}//End while
 			groupeId.close();
+			statement.close();
+			connexion.close();
 		}//End try
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
-			groupeId.close();
-		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -327,40 +323,50 @@ public class BaseDeDonnees implements Serializable {
 		if(res < 0)
 			throw new BaseDeDonneesException("Erreur cr�ation groupe");
 		
-		requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';";
-		ResultSet result = requeteExecuteQuerie(requete);
-		
+
+		Groupe groupeReturn = null;
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + nom + "';";
+			ResultSet result = statement.executeQuery(requete);
+			
 			if(result.next()) {
-				result.close();
-				return new Groupe(nom);
+				groupeReturn =  new Groupe(nom);
 			}
 			else { //Si aucun r�sultat
+				result.close();
+				statement.close();
+				connexion.close();
 				throw new BaseDeDonneesException("Aucun r�sultat cr�ation de groupe");
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			result.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null; //Si aucun r�sultat
+		return groupeReturn; //Si aucun r�sultat
 	}
 	
 	
 	public List<Groupe> getAllGroup(){
-		String requete = "SELECT * FROM GroupeUser";
-		ResultSet groupe = requeteExecuteQuerie(requete);
+
 		List<Groupe> listeReturn = new ArrayList<>();
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM GroupeUser";
+			ResultSet groupe = statement.executeQuery(requete);
+			
 			while(groupe.next()) {
 				listeReturn.add(new Groupe(groupe.getString("nomGroupe")));
 			}
 			groupe.close();
+			statement.close();
+			connexion.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -368,15 +374,21 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public Groupe getGroup(String nomGroupe){
-        String requete = "SELECT * FROM GroupeUser WHERE nomGroupe='" + nomGroupe + "';";
-        ResultSet groupe = requeteExecuteQuerie(requete);
+
         Groupe retour = null;
         
         try {
+        	connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+        	Statement statement = connexion.createStatement(); //Création de la future requête
+            String requete = "SELECT * FROM GroupeUser WHERE nomGroupe='" + nomGroupe + "';";
+            ResultSet groupe = statement.executeQuery(requete);
+            
             if(groupe.next()) {
                 retour = new Groupe(groupe.getString("nomGroupe"));
-                groupe.close();
             }
+            groupe.close();
+            statement.close();
+            connexion.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -401,14 +413,19 @@ public class BaseDeDonnees implements Serializable {
 	
 	
 	public List<Discussion> getFilOfGroupe(Groupe groupe) {
-		String requete = "SELECT * FROM Correspondre WHERE nomGroupe = '" + groupe.getNom() + "'";
-		ResultSet discussions = requeteExecuteQuerie(requete);
+
 		List<Discussion> listeReturn = new ArrayList<>();
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Correspondre WHERE nomGroupe = '" + groupe.getNom() + "'";
+			ResultSet discussions = statement.executeQuery(requete);
+			
 			while(discussions.next()) {//Itération de tous les résultats
 				requete = "SELECT * FROM Fil WHERE idFil = " + discussions.getInt("idFil");
-				ResultSet currentFil = requeteExecuteQuerie(requete);
+				Statement statement2 = connexion.createStatement(); //Création de la future requête
+				ResultSet currentFil = statement2.executeQuery(requete);
 				
 				if(currentFil.next()) {//Fil en cours
 					int idFil = currentFil.getInt("idFil");
@@ -419,8 +436,11 @@ public class BaseDeDonnees implements Serializable {
 							getMessageById(idFil)));
 				}//End if
 				currentFil.close();
+				statement2.close();
 			}//End while
 			discussions.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -430,21 +450,27 @@ public class BaseDeDonnees implements Serializable {
 	
 	public List<Utilisateur> getUsersOfGroup(Groupe groupe){
 		
-		//R�cup�ration de tous les Users qui correspondent au groupe
-		String requete = "SELECT * FROM Appartenir WHERE nomGroupe ='" + groupe.getNom() + "';";
-		ResultSet loginUsers = requeteExecuteQuerie(requete);
 		List<Utilisateur> listeReturn = new ArrayList<Utilisateur>();
 		
 		
 		//Traitement des users
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			
+			//R�cup�ration de tous les Users qui correspondent au groupe
+			String requete = "SELECT * FROM Appartenir WHERE nomGroupe ='" + groupe.getNom() + "';";
+			ResultSet loginUsers = statement.executeQuery(requete);
+			
 			while(loginUsers.next()) { //On parcours la liste des loginUser qu'on a r�cup
 				
 				String login = loginUsers.getString("loginUser");
 				
 				//R�cup�ration de l'user en cours
 				requete = "SELECT * FROM Utilisateur WHERE loginUser = '" + login +"'";
-				ResultSet currentUser = requeteExecuteQuerie(requete);
+				Statement statement2 = connexion.createStatement(); //Création de la future requête
+
+				ResultSet currentUser = statement2.executeQuery(requete);
 				
 				if(currentUser.next()) {
 					String nom = currentUser.getString("nomUser");
@@ -470,15 +496,12 @@ public class BaseDeDonnees implements Serializable {
 					}//End switch
 				}//End if
 				currentUser.close();
+				statement2.close();
 			}//End while
 			loginUsers.close();
+			statement.close();
+			connexion.close();
 		}//End try
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
-			loginUsers.close();
-		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -486,27 +509,27 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public Groupe getGroupeById(Groupe grp) {
-		String requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + grp.getNom() + "'";
-		ResultSet groupe = requeteExecuteQuerie(requete);
+		Groupe returnGroupe = null;
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM GroupeUser WHERE nomGroupe = '" + grp.getNom() + "'";
+			ResultSet groupe = statement.executeQuery(requete);
+			
 			if(groupe.next()) {
 				String nomGroupe = groupe.getString("nomGroupe");
 				List<Utilisateur> listUser = getUsersOfGroup(new Groupe(groupe.getString("nomGroupe")));
-				groupe.close();
-				return new Groupe(nomGroupe, listUser);
+				returnGroupe = new Groupe(nomGroupe, listUser);
 			}
-		} 
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			groupe.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return returnGroupe;
 	}
 	
 	/********************************
@@ -535,83 +558,99 @@ public class BaseDeDonnees implements Serializable {
 		requete += "AND dateMessage = " + message.getDate().getTime() + " ";
 		requete += "AND loginUser = '" + message.getAuteur().getUsername() + "' ";
 		requete += "ORDER BY idMessage DESC";
-		ResultSet messageRes = requeteExecuteQuerie(requete);
+		
+		Message messageReturn = null;
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			ResultSet messageRes = statement.executeQuery(requete);
+
 			if(messageRes.next()) {
 				int idMess = messageRes.getInt("idMessage");
-				messageRes.close();
-				return new Message(
+				messageReturn = new Message(
 						message.getAuteur(),
 						message.getMessage(),
 						message.getDate(),
 						idMess);
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			messageRes.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		
+		return messageReturn;
 	}
 	
 	
 	//Attention, pour cette fonction le type du message est initialisé à null
 	public Message getMessageById(int id) {
-		String requete = "SELECT * FROM Message WHERE idMessage = " + id;
-		ResultSet message = requeteExecuteQuerie(requete);
+
+		Message messageReturn = null;
 		
 		try { 
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Message WHERE idMessage = " + id;
+			ResultSet message = statement.executeQuery(requete);
+			
 			if(message.next()) {
 				int idMessage = message.getInt("idMessage");
 				String corpsMessage = message.getString("corpsMessage");
 				Date dateMessage = new Date(message.getLong("dateMessage"));
 				String loginUser = message.getString("loginUser");
 				Utilisateur user = usernameVersUtilisateur(loginUser);
-				message.close();
-				return new Message(user, dateMessage, corpsMessage, idMessage, getDiscussionOfMessage(idMessage).getIdDiscussion(), null);
+
+				messageReturn =  new Message(user, dateMessage, corpsMessage, idMessage, getDiscussionOfMessage(idMessage).getIdDiscussion(), null);
 			}
-		} catch (SQLException | BaseDeDonneesException e) {
-			e.printStackTrace();
-		}
-		try {
 			message.close();
+			statement.close();
+			connexion.close();
 		} 
-		catch (SQLException e) {
+		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return messageReturn;
 	}
 	
 	//A donner : l'id du message pour lequel on veut la discussion qui lui est associée 
 	public Discussion getDiscussionOfMessage(int id) {
-		String requete = "SELECT * FROM Fil WHERE idFil = " + id; //idFil, car si c'est un message qui a créé un Fil, alors idFil = idMessage
-		ResultSet discussion = requeteExecuteQuerie(requete);
 		Discussion returnDiscussion = null;
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Fil WHERE idFil = " + id; //idFil, car si c'est un message qui a créé un Fil, alors idFil = idMessage
+			ResultSet discussion = statement.executeQuery(requete);
+			
 			if(discussion.next()) {
 				int idFil = discussion.getInt("idFil");
 				returnDiscussion = new Discussion(discussion.getString("titre"), 
 						usernameVersUtilisateur(getCreateurMessage(idFil).getUsername()),
 						getGroupeOfFil(idFil), 
 						idFil);
-				discussion.close();
+
 			}
 			else {//Ce message n'a pas créé de fil
 				requete = "SELECT * FROM Contenir WHERE idMessage = " + id;
-				discussion = requeteExecuteQuerie(requete);
+				Statement statement2 = connexion.createStatement(); //Création de la future requête
+				discussion = statement2.executeQuery(requete);
 				if(discussion.next()) {//S'il le message est contenu dans un fil de discussion
 					int idFil = discussion.getInt("idFil");
 					returnDiscussion = getFilById(idFil);
-					discussion.close();
-				}		
+				}
+				discussion.close();
+				statement2.close();
+				connexion.close();
 			}
-		} catch (SQLException | BaseDeDonneesException e) {
+			discussion.close();
+			statement.close();
+			connexion.close();
+		} 
+		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
 		}
 		return returnDiscussion;
@@ -619,25 +658,26 @@ public class BaseDeDonnees implements Serializable {
 	
 	
 	public Utilisateur getCreateurMessage(int id) {
-		String requete = "SELECT * FROM Message WHERE idMessage = " + id;
-		ResultSet message = requeteExecuteQuerie(requete);
-		
+
+		Utilisateur userReturn = null;
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Message WHERE idMessage = " + id;
+			ResultSet message = statement.executeQuery(requete);
+			
 			if(message.next()) {
 				String loginUser = message.getString("loginUser");
-				message.close();
-				return usernameVersUtilisateur(loginUser);
+				userReturn =  usernameVersUtilisateur(loginUser);
 			}
-		} catch (SQLException | BaseDeDonneesException e) {
-			e.printStackTrace();
-		}
-		try {
 			message.close();
+			statement.close();
+			connexion.close();
 		} 
-		catch (SQLException e) {
+		catch (SQLException | BaseDeDonneesException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return userReturn;
 	}
 	
 	/********************************
@@ -658,51 +698,53 @@ public class BaseDeDonnees implements Serializable {
 	}
 	
 	public Discussion getFilById(int id) {
-		String requete = "SELECT * FROM Fil WHERE idFil = " + id;
-		ResultSet fil = requeteExecuteQuerie(requete);
-		
+
+		Discussion returnFil = null;
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Fil WHERE idFil = " + id;
+			ResultSet fil = statement.executeQuery(requete);
+			
 			if(fil.next()) {
 				String titre = fil.getString("titre");
-				fil.close();
-				return new Discussion(titre, 
+				returnFil = new Discussion(titre, 
 						getMessageById(id).getAuteur(), //On récupère le message qui a créé le fil, puis on get son auteur 
 						getGroupeOfFil(id), 
 						id);
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			fil.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return returnFil;
 	}
 	
 	
 	public Groupe getGroupeOfFil(int id) {
-		String requete = "SELECT * FROM Correspondre WHERE idFil = " + id;
-		ResultSet groupe = requeteExecuteQuerie(requete);
+		Groupe groupeReturn = null;
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Correspondre WHERE idFil = " + id;
+			ResultSet groupe = statement.executeQuery(requete);
+			
 			if(groupe.next()) {
 				String nom = groupe.getString("nomGroupe");
-				groupe.close();
-				return getGroupeById(new Groupe(nom));
+				groupeReturn = getGroupeById(new Groupe(nom));
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		try {
 			groupe.close();
+			statement.close();
+			connexion.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return groupeReturn;
 	}
 	
 	public int addFilToGroup(String nomGroupe, int idFil) {
@@ -725,15 +767,21 @@ public class BaseDeDonnees implements Serializable {
 	public List<Message> getMessageOfFil(int id){
 		List<Message> listReturn = new ArrayList<>();
 		listReturn.add(getMessageById(id)); //On ajoute le message qui a créé le fil
-		String requete = "SELECT * FROM Contenir WHERE idFil = " + id;
-		ResultSet message = requeteExecuteQuerie(requete);
 		
 		try {
+			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
+			Statement statement = connexion.createStatement(); //Création de la future requête
+			String requete = "SELECT * FROM Contenir WHERE idFil = " + id;
+			ResultSet message = statement.executeQuery(requete);
+			
 			while(message.next()) {
 				listReturn.add(getMessageById(message.getInt("idMessage")));
 			}
 			message.close();
-		} catch (SQLException e) {
+			statement.close();
+			connexion.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return listReturn;
@@ -753,6 +801,7 @@ public class BaseDeDonnees implements Serializable {
 			
 			int res = statement.executeUpdate(requete); //Exécution
 			statement.close(); //Fermeture
+			connexion.close();
 			
 			return res;
 			
@@ -762,23 +811,6 @@ public class BaseDeDonnees implements Serializable {
 		}
 		return -1;
 	}
-	
-	//Envoi d'une requête de type "Select" à la BDD
-	private ResultSet requeteExecuteQuerie(String requete) {
-		try {
-			connexion = DriverManager.getConnection(urlBDD, usernameBDD, mdpBDD); //Co à la BDD
-			Statement statement = connexion.createStatement(); //Création de la future requête
-			
-			ResultSet resultSet = statement.executeQuery(requete);
-			return resultSet;
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	
 	
 	/*TODO
 	 * ON DELETE CASCADE pour les clés étrangères

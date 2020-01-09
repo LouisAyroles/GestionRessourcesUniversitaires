@@ -3,6 +3,7 @@ package interfaces.fenetreUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -33,6 +34,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import bdd.BaseDeDonnees;
 import bdd.BaseDeDonneesException;
 import interfaces.utilitaire.BoutonImage;
+import interfaces.utilitaire.MonRenderer;
 import messages.Discussion;
 import messages.Message;
 import utilisateurs.Groupe;
@@ -61,6 +63,7 @@ public class MainFrame extends Fenetre{
 	private JButton envoyer = new BoutonImage("img/fleche.jpg");
 	private JPanel jp = new JPanel();
 	private JScrollPane top;
+	private MonRenderer renderer = new MonRenderer();
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
@@ -75,6 +78,7 @@ public class MainFrame extends Fenetre{
 		}
 		setSize((int)getCurrentScreenSize().getWidth(),(int)getCurrentScreenSize().getHeight());
 		arbo = filDiscussion(this.connected.getUsername());
+		arbo.setCellRenderer(renderer);
 		initConversations();
 		initfocus();
 		initFenetre();
@@ -239,42 +243,44 @@ public class MainFrame extends Fenetre{
   }  
   
   	
-  	private JPanel ajoutJPanel(int id) throws BaseDeDonneesException, IOException {
-  		JPanel jp = new JPanel();
-  		jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
-  		List<Message> listeMsg = getMessageOfDiscussion(id);
-  		for(Message msg : listeMsg) {
-  			jp.add(boxDiscussion(msg));
-  		}
-  		return jp;
-  	}
-  	
-  	private Box boxDiscussion(Message m) throws IOException {
-  		Box box = new Box(BoxLayout.Y_AXIS);
-  		
-  		JLabel auteur = new JLabel(m.getAuteur().getNom() + " " + m.getAuteur().getPrenom() + " :");
-  		Font fontAuteur = new Font("Arial", Font.BOLD, 13);
-  		auteur.setFont(fontAuteur);
-  		
-  		JEditorPane corps = new JEditorPane();
-  		corps.setContentType("text/plain");	
-  		corps.setText(m.getMessage());
-  		corps.setEditable(false);
-  		corps.setBackground(auteur.getBackground());
-  		
-  		JLabel date = new JLabel(m.getDate().toString());
-  		Font fontDate = new Font("Arial", Font.ITALIC ,12);
-  		date.setFont(fontDate);
-  		
-  		//JLabel space = new JLabel(" ");
-  		//box.add(space);
-  		
-  		box.add(auteur);
-  		box.add(corps);
-  		box.add(date);
-  		box.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black));
-  		return box;
-  	}
+  private JPanel ajoutJPanel(int id) throws BaseDeDonneesException, IOException {
+      jp = new JPanel();
+      jp.setLayout(new BoxLayout(jp, BoxLayout.Y_AXIS));
+      List<Message> listeMsg = getMessageOfDiscussion(id);
+      for(Message msg : listeMsg) {
+          jp.add(boxDiscussion(msg));
+      }
+      return jp;
+  }
+  
+  private  Box boxDiscussion(Message m) throws IOException {
+      Box box = new Box(BoxLayout.Y_AXIS);
+      
+      JLabel auteur = new JLabel(m.getAuteur().getNom() + " " + m.getAuteur().getPrenom() + " :");
+      Font fontAuteur = new Font("Arial", Font.BOLD, 13);
+      auteur.setFont(fontAuteur);
+      
+      JEditorPane corps = new JEditorPane();
+      corps.setContentType("text/plain");    
+      corps.setText(m.getMessage());
+      corps.setEditable(false);
+      corps.setBackground(auteur.getBackground());
+      
+      JLabel date = new JLabel(m.getDate().toString());
+      Font fontDate = new Font("Arial", Font.ITALIC ,12);
+      date.setFont(fontDate);
+      
+      //JLabel space = new JLabel(" ");
+      //box.add(space);
+      
+      box.add(auteur);
+      box.add(corps);
+      box.add(date);
+      box.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.black));
+      box.setMinimumSize(new Dimension(top.getWidth()/2, 125));
+      box.setMaximumSize(new Dimension(top.getWidth()/2, 150));
+      return box;
+  }
   	
   	private List<Message> getMessageOfDiscussion(int id) throws BaseDeDonneesException {
   		Discussion d = bdd.getFilById(id);

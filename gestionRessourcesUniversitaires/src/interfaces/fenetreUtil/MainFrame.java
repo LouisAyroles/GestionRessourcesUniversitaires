@@ -25,6 +25,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -55,6 +57,10 @@ public class MainFrame extends Fenetre{
 	private ItemMenu itemTicket = new ItemMenu("Ticket"); 
 	private Utilisateur connected;
 	private JTree arbo;
+	private DefaultMutableTreeNode node;
+	private JButton envoyer = new BoutonImage("img/fleche.jpg");
+	private JPanel jp = new JPanel();
+	private JScrollPane top;
 	@SuppressWarnings("unused")
 	private int nbConversations;
 	
@@ -81,6 +87,24 @@ public class MainFrame extends Fenetre{
 			conversations.add(boutton[i]);
 		}
 		setVisible(true);
+		envoyer.addActionListener(this);
+		arbo.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
+				node = (DefaultMutableTreeNode)arbo.getLastSelectedPathComponent();
+				if(node == null) return;
+				Object nodeInfo= node.getUserObject();
+				
+				if(nodeInfo.getClass() == Discussion.class) {
+					Discussion selected = (Discussion) nodeInfo;
+					try {
+						jp = ajoutJPanel(selected.getIdDiscussion());
+						top.setViewportView(jp);
+					} catch(Exception ex) {
+						System.out.println("J'em bas les couilles frère.");
+					}
+				}
+			}
+		});
 	}
 	
 	public void actionPerformed(ActionEvent arg0) {
@@ -89,6 +113,7 @@ public class MainFrame extends Fenetre{
 		} else if(arg0.getSource() == deconnexion) {
 			dispose();
 			new Login();
+		} else if(arg0.getSource() == envoyer) {
 		}
 	}
 	
@@ -118,18 +143,12 @@ public class MainFrame extends Fenetre{
 		fenetre.setRightComponent(right);
 		initRight();
 		fenetre.setEnabled(false);
-		fenetre.setResizeWeight(0.04);
+		fenetre.setResizeWeight(0.2);
 		fenetre.setDividerSize(4);
 	}
 	
 	public void initRight() {
-		JPanel jp = null;
-		try {
-			jp = ajoutJPanel(2);
-		} catch(Exception e) {
-			System.out.println("J'em bas les couilles frère.");
-		}
-		JScrollPane top = new JScrollPane(jp,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		top = new JScrollPane(jp,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		right.setBackground(Color.BLUE);
 		right.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		right.setResizeWeight(0.8);
@@ -155,7 +174,7 @@ public class MainFrame extends Fenetre{
 		buttonHolder.add(new JPanel());
 		buttonHolder.add(new JPanel());
 		buttonHolder.add(new JPanel());
-		buttonHolder.add(new BoutonImage("img/fleche.jpg"));
+		buttonHolder.add(envoyer);
 		bottomright.add(buttonHolder,BorderLayout.EAST);
 		bottomright.add(new JTextArea(), BorderLayout.CENTER);
 		right.setBottomComponent(bottomright);
@@ -216,7 +235,6 @@ public class MainFrame extends Fenetre{
         
         JTree tree = new JTree(racine);
         tree.setVisibleRowCount(10);
-     
         return tree;
   }  
   

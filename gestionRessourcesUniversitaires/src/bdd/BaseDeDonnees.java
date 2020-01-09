@@ -22,7 +22,7 @@ import utilisateurs.Utilisateur;
 
 public class BaseDeDonnees implements Serializable {
 	
-	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires";
+	private static String urlBDD = "jdbc:mysql://localhost:3306/BDD_gestion_ressources_universitaires?zeroDateTimeBehavior=CONVERT_TO_NULL&serverTimezone=UTC";
 	private static String usernameBDD = "root";
 	private static String mdpBDD = "root";
 	private static Connection connexion = null;
@@ -150,14 +150,18 @@ public class BaseDeDonnees implements Serializable {
 						default:
 							break;
 					}//End switch
+					utilisateur.close();
 				}//End if
-				else {
-					return null;
-				}
 			} //End try
 			catch (SQLException e) {
 				e.printStackTrace();
 			}
+		try {
+			utilisateur.close();
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}	
 		return null; //Si null c'est qu'il n'y a aucun résultat
 	}
 	
@@ -227,7 +231,14 @@ public class BaseDeDonnees implements Serializable {
 							break;
 					}//End switch
 			}//End while
+			utilisateur.close();
 		}//End try 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			utilisateur.close();
+		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -241,11 +252,19 @@ public class BaseDeDonnees implements Serializable {
 		ResultSet result = requeteExecuteQuerie(requete);
 		
 		try {
-			if(result.next()) //S'il y en a un, donc ça veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
+			if(result.next()) { //S'il y en a un, donc ça veut dire que c'est le bon login/mdp (Login unique donc combinaison des deux unique)
+				result.close();
 				return 1;
+			}
 			else
 				return -1;
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			result.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return -1;
@@ -268,8 +287,16 @@ public class BaseDeDonnees implements Serializable {
 					String nomGroupe = groupe.getString("nomGroupe");
 					listeReturn.add(new Groupe(nomGroupe));
 				}//End if
+				groupe.close();
 			}//End while
+			groupeId.close();
 		}//End try
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			groupeId.close();
+		} 
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -305,12 +332,19 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			if(result.next()) {
+				result.close();
 				return new Groupe(nom);
 			}
 			else { //Si aucun r�sultat
 				throw new BaseDeDonneesException("Aucun r�sultat cr�ation de groupe");
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			result.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null; //Si aucun r�sultat
@@ -326,6 +360,7 @@ public class BaseDeDonnees implements Serializable {
 			while(groupe.next()) {
 				listeReturn.add(new Groupe(groupe.getString("nomGroupe")));
 			}
+			groupe.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -340,6 +375,7 @@ public class BaseDeDonnees implements Serializable {
         try {
             if(groupe.next()) {
                 retour = new Groupe(groupe.getString("nomGroupe"));
+                groupe.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -382,7 +418,9 @@ public class BaseDeDonnees implements Serializable {
 							idFil,
 							getMessageById(idFil)));
 				}//End if
+				currentFil.close();
 			}//End while
+			discussions.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -431,12 +469,19 @@ public class BaseDeDonnees implements Serializable {
 							break;
 					}//End switch
 				}//End if
+				currentUser.close();
 			}//End while
+			loginUsers.close();
 		}//End try
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+		try {
+			loginUsers.close();
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return listeReturn;
 	}
 	
@@ -446,9 +491,17 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			if(groupe.next()) {
-				return new Groupe(groupe.getString("nomGroupe"), 
-						getUsersOfGroup(new Groupe(groupe.getString("nomGroupe"))));
+				String nomGroupe = groupe.getString("nomGroupe");
+				List<Utilisateur> listUser = getUsersOfGroup(new Groupe(groupe.getString("nomGroupe")));
+				groupe.close();
+				return new Groupe(nomGroupe, listUser);
 			}
+		} 
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			groupe.close();
 		} 
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -486,13 +539,21 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			if(messageRes.next()) {
+				int idMess = messageRes.getInt("idMessage");
+				messageRes.close();
 				return new Message(
 						message.getAuteur(),
 						message.getMessage(),
 						message.getDate(),
-						messageRes.getInt("idMessage"));
+						idMess);
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			messageRes.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -504,16 +565,23 @@ public class BaseDeDonnees implements Serializable {
 		String requete = "SELECT * FROM Message WHERE idMessage = " + id;
 		ResultSet message = requeteExecuteQuerie(requete);
 		
-		try {
+		try { 
 			if(message.next()) {
 				int idMessage = message.getInt("idMessage");
 				String corpsMessage = message.getString("corpsMessage");
 				Date dateMessage = new Date(message.getLong("dateMessage"));
 				String loginUser = message.getString("loginUser");
 				Utilisateur user = usernameVersUtilisateur(loginUser);
+				message.close();
 				return new Message(user, dateMessage, corpsMessage, idMessage, getDiscussionOfMessage(idMessage).getIdDiscussion(), null);
 			}
 		} catch (SQLException | BaseDeDonneesException e) {
+			e.printStackTrace();
+		}
+		try {
+			message.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -532,6 +600,7 @@ public class BaseDeDonnees implements Serializable {
 						usernameVersUtilisateur(getCreateurMessage(idFil).getUsername()),
 						getGroupeOfFil(idFil), 
 						idFil);
+				discussion.close();
 			}
 			else {//Ce message n'a pas créé de fil
 				requete = "SELECT * FROM Contenir WHERE idMessage = " + id;
@@ -539,6 +608,7 @@ public class BaseDeDonnees implements Serializable {
 				if(discussion.next()) {//S'il le message est contenu dans un fil de discussion
 					int idFil = discussion.getInt("idFil");
 					returnDiscussion = getFilById(idFil);
+					discussion.close();
 				}		
 			}
 		} catch (SQLException | BaseDeDonneesException e) {
@@ -555,9 +625,16 @@ public class BaseDeDonnees implements Serializable {
 		try {
 			if(message.next()) {
 				String loginUser = message.getString("loginUser");
+				message.close();
 				return usernameVersUtilisateur(loginUser);
 			}
 		} catch (SQLException | BaseDeDonneesException e) {
+			e.printStackTrace();
+		}
+		try {
+			message.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -586,12 +663,20 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			if(fil.next()) {
-				return new Discussion(fil.getString("titre"), 
+				String titre = fil.getString("titre");
+				fil.close();
+				return new Discussion(titre, 
 						getMessageById(id).getAuteur(), //On récupère le message qui a créé le fil, puis on get son auteur 
 						getGroupeOfFil(id), 
 						id);
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			fil.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -604,9 +689,17 @@ public class BaseDeDonnees implements Serializable {
 		
 		try {
 			if(groupe.next()) {
-				return getGroupeById(new Groupe(groupe.getString("nomGroupe")));
+				String nom = groupe.getString("nomGroupe");
+				groupe.close();
+				return getGroupeById(new Groupe(nom));
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			groupe.close();
+		} 
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -639,6 +732,7 @@ public class BaseDeDonnees implements Serializable {
 			while(message.next()) {
 				listReturn.add(getMessageById(message.getInt("idMessage")));
 			}
+			message.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

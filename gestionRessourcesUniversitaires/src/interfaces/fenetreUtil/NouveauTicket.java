@@ -4,7 +4,6 @@
 package interfaces.fenetreUtil;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -154,7 +153,7 @@ public class NouveauTicket extends Fenetre {
 	public void initGroupeSource() {
 		JLabel groupe = new JLabel("Source : ");
 		for(Groupe g : bdd.getGroupsOfUser(connected)) {
-			if(g.toString().substring(0, 1).equals("T"))
+			//if(g.toString().substring(0, 1).equals("T"))
 				nomsDesGroupes.add(g.toString());
 		}
 		saisieGroupeSource.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 20));

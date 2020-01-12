@@ -21,7 +21,6 @@ import utilisateurs.Administratif;
 import utilisateurs.Enseignant;
 import utilisateurs.Etudiant;
 import utilisateurs.Technicien;
-import utilisateurs.TypeUtilisateur;
 import utilisateurs.Utilisateur;
 
 /**
@@ -30,6 +29,10 @@ import utilisateurs.Utilisateur;
  */
 public class ModifUser extends Fenetre {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4434396287449202192L;
 	private Bouton valider = new Bouton("Valider");
 	private Bouton retour = new Bouton("Retour");
 	private MainAdminFrame monParent;

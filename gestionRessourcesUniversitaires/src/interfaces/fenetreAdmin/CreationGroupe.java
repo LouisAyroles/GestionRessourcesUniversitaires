@@ -21,6 +21,10 @@ import interfaces.utilitaire.Bouton;
  */
 public class CreationGroupe extends Fenetre {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3045776156068604231L;
 	private JPanel top = new JPanel();
 	private MainAdminFrame monParent;
 	private JPanel mid = new JPanel();

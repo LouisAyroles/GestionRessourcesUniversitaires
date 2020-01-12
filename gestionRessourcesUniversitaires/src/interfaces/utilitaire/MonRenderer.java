@@ -3,6 +3,7 @@ package interfaces.utilitaire;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -20,6 +21,8 @@ public class MonRenderer extends DefaultTreeCellRenderer {
 	 */
 	private static final long serialVersionUID = 366612211746604049L;
 	private JLabel label;
+	private URL conv = MonRenderer.class.getResource("/img/conv.png");
+	private URL groupe = MonRenderer.class.getResource("/img/groupe.png");
  
 	@Override
 	public Component getTreeCellRendererComponent(final JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row,
@@ -32,7 +35,7 @@ public class MonRenderer extends DefaultTreeCellRenderer {
 			
 			label = new JLabel(value.toString());
 			label.setFont(new Font("Arial", Font.PLAIN, 12)); //police et couleur de la feuille
-			label.setIcon(new ImageIcon("src/img/conv.png")); // pour mettre un icone personnalisé
+			label.setIcon(new ImageIcon(conv)); // pour mettre un icone personnalisé
 			label.setForeground(Color.BLUE);//couleur de police
 			if(sel) {
 				label.setForeground(Color.GRAY);
@@ -42,7 +45,7 @@ public class MonRenderer extends DefaultTreeCellRenderer {
 		}else if (node.getUserObject().getClass() == Groupe.class) {
 			label = new JLabel(value.toString());
 			label.setFont(new Font("Arial", Font.PLAIN, 12)); //police et couleur de la feuille
-			label.setIcon(new ImageIcon("src/img/groupe.png")); // pour mettre un icone personnalisé
+			label.setIcon(new ImageIcon(groupe)); // pour mettre un icone personnalisé
 			label.setForeground(Color.BLACK);//couleur de police
 			if(sel) {
 				label.setForeground(Color.GRAY);

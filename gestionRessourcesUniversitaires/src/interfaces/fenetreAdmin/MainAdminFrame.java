@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -34,6 +33,10 @@ import utilisateurs.Utilisateur;
  */
 public class MainAdminFrame extends Fenetre{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7006113647377499916L;
 	private BaseDeDonnees bdd;
 	private String editionEnCours;
 	private JOptionPane effaceDemande = new JOptionPane();
@@ -98,6 +101,7 @@ public class MainAdminFrame extends Fenetre{
 		arrayUser = bdd.getAllUser();
 	}
 	
+	@SuppressWarnings("static-access")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub

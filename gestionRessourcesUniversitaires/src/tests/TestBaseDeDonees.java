@@ -1,15 +1,8 @@
 package tests;
-import java.util.Date;
 
 import bdd.BaseDeDonnees;
 import bdd.BaseDeDonneesException;
-import messages.Discussion;
-import messages.Message;
-import utilisateurs.Enseignant;
-import utilisateurs.Etudiant;
 import utilisateurs.Groupe;
-import utilisateurs.Technicien;
-import utilisateurs.Utilisateur;
 public class TestBaseDeDonees {
 	public static void main (String[] args) throws BaseDeDonneesException {
 			BaseDeDonnees myBDD = new BaseDeDonnees();

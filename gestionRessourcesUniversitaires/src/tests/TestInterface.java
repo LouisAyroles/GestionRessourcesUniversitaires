@@ -3,7 +3,6 @@
  */
 package tests;
 
-import interfaces.fenetreAdmin.MainAdminFrame;
 import interfaces.fenetreUtil.Login;
 
 /**

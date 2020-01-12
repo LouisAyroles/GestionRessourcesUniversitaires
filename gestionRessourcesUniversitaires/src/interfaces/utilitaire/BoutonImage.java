@@ -2,7 +2,10 @@ package interfaces.utilitaire;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import javax.swing.ImageIcon;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
      
     public class BoutonImage extends JButton {
@@ -12,11 +15,15 @@ import javax.swing.JButton;
          */
         private static final long serialVersionUID = -949686672617045018L;
         private Image img;
-        private String imageName;
          
 
         public BoutonImage(String imageName) {
-            img = new ImageIcon(imageName).getImage();
+        	URL url = BoutonImage.class.getResource(imageName);
+        	try {
+    			img = ImageIO.read(url);
+    		} catch(IOException e) {
+    			e.printStackTrace();
+    		}
         }
          
         

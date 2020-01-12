@@ -2,7 +2,6 @@ package tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import messages.*;
 import utilisateurs.*;
 
 public class Test {

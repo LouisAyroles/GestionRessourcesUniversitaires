@@ -2,7 +2,6 @@ package interfaces.fenetreUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -16,9 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -31,7 +28,6 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 import bdd.BaseDeDonnees;
 import bdd.BaseDeDonneesException;
@@ -53,7 +49,6 @@ public class MainFrame extends Fenetre{
 	private JSplitPane fenetre = new JSplitPane();
 	private JPanel conversations = new JPanel();
 	private JPanel focus = new JPanel();
-	private JButton [] boutton = new JButton[8];
 	private JMenuBar barreMenu = new JMenuBar();		
 	private JMenu menuNouveau = new JMenu("Nouveau");
 	private ItemMenu deconnexion = new ItemMenu("Déconnexion");
@@ -62,19 +57,16 @@ public class MainFrame extends Fenetre{
 	private Utilisateur connected;
 	private JTree arbo;
 	private DefaultMutableTreeNode node;
-	private JButton envoyer = new BoutonImage("src/img/fleche.jpg");
+	private JButton envoyer = new BoutonImage("/img/fleche.jpg");
 	private JPanel jp = new JPanel();
 	private JScrollPane top;
 	private MonRenderer renderer = new MonRenderer();
 	private JTextArea texteSaisie = new JTextArea();
 	private NouveauTicket nt;
-	@SuppressWarnings("unused")
-	private int nbConversations;
 	
 	public MainFrame(String title, BaseDeDonnees bdd, String connected) {
 		super(title);
 		this.bdd = bdd;
-		this.nbConversations = nbConversations;
 		for(Utilisateur u : bdd.getAllUser()) {
 			if(u.getUsername().equalsIgnoreCase(connected)) {
 				this.connected = u;
@@ -89,10 +81,6 @@ public class MainFrame extends Fenetre{
 		initMenuBar();
 		setJMenuBar(barreMenu);
 		positionnerCentre();
-		for(int i = 0; i < nbConversations; i++) {
-			boutton[i] = new JButton("BOUTON DE TEST "+ (i+1));
-			conversations.add(boutton[i]);
-		}
 		setVisible(true);
 		envoyer.addActionListener(this);
 		arbo.addTreeSelectionListener(new TreeSelectionListener() {

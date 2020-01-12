@@ -143,6 +143,7 @@ public class MainFrame extends Fenetre{
 			int j = 0;
 			char[] saisie2 = saisie.toCharArray();
 			char[] saisie3 = new char[saisie2.length*2];
+			
 			texteSaisie.setText("");
 			for(int i = 0; i < saisie2.length; i++) {
 				saisie3[j] = saisie2[i];
@@ -152,7 +153,11 @@ public class MainFrame extends Fenetre{
 				}
 				j++;
 			}
-			saisie = new String(saisie3);
+			char[] saisieFin = new char[j];
+			for (int i = 0; i < saisieFin.length; i++) {
+				saisieFin[i] = saisie3[i];
+			}
+			saisie = new String(saisieFin);
 			Discussion selected = null;
 			Message msg;
 			if(saisie != " ") {

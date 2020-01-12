@@ -96,7 +96,11 @@ public class NouveauTicket extends Fenetre {
 			}
 			j++;
 		}
-		saisie = new String(saisie3);
+		char[] saisieFin = new char[j];
+		for (int i = 0; i < saisieFin.length; i++) {
+			saisieFin[i] = saisie3[i];
+		}
+		saisie = new String(saisieFin);
 		msg = new Message(connected, saisie, new Date());
 		j = 0;
 		char[] saisie4 = entreeTitre.getText().toCharArray();
@@ -109,7 +113,11 @@ public class NouveauTicket extends Fenetre {
 			}
 			j++;
 		}
-		nouv = new Discussion(new String(saisie5), connected, gs,gd, 0, msg);
+		char[] saisieFin2 = new char[j];
+		for (int i = 0; i < saisieFin2.length; i++) {
+			saisieFin2[i] = saisie5[i];
+		}
+		nouv = new Discussion(new String(saisieFin2), connected, gs,gd, 0, msg);
 		return nouv;
 	}
 
